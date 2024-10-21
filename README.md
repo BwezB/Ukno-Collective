@@ -18,7 +18,7 @@ Cilj projekta je narediti platformo, ki bo revolucionirala kako ljudje razmišlj
 - Frontend: Swift -> Z jezikom hitro zgradimo estetske aplikacije ki delujejo dobro. 
 
 ## Shema arhitekture
-![alt text](images/image.png)
+![alt text](presentation_data/image.png)
 
 ## Seznam funkcionalnosti mikrostoritev
 
