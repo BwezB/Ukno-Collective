@@ -15,7 +15,7 @@ import (
 
 type Server struct {
 	pb.UnimplementedAuthServiceServer // Embed the generated server interface
-	grpc 							  *grpc.Server
+	grpcServer 							  *grpc.Server
 	service                           *service.AuthService
 	netListener                       net.Listener
 }
@@ -24,9 +24,10 @@ func NewServer(service *service.AuthService, serverConfig *config.ServerConfig )
 	server := &Server{service: service}
 
 	// Set up the gRPC server
-	grpcServer := grpc.NewServer()
-	pb.RegisterAuthServiceServer(grpcServer, server)
+	server.grpcServer = grpc.NewServer()
+	pb.RegisterAuthServiceServer(server.grpcServer, server)
 	
+	// Set up the listener
 	lis, err := net.Listen("tcp", serverConfig.Address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -37,7 +38,7 @@ func NewServer(service *service.AuthService, serverConfig *config.ServerConfig )
 }
 
 func (s *Server) Serve() error {
-	return s.grpc.Serve(s.netListener)
+	return s.grpcServer.Serve(s.netListener)
 }
 
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
