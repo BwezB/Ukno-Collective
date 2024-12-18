@@ -10,7 +10,7 @@ type AuthService struct {
 	db *db.Database
 }
 
-func NewAuthService(database *db.Database) *AuthService {
+func New(database *db.Database) *AuthService {
 	return &AuthService{db: database}
 }
 

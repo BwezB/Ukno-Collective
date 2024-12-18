@@ -2,21 +2,45 @@ package api
 
 import (
 	"context"
-	"github.com/BwezB/Wikno-backend/internal/auth/service"
+	"net"
+	"log"
+
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
+	"github.com/BwezB/Wikno-backend/internal/auth/service"
+	"github.com/BwezB/Wikno-backend/internal/auth/config"
+
 	pb "github.com/BwezB/Wikno-backend/api/proto/auth"
+	"google.golang.org/grpc"
 )
 
-type AuthServer struct {
+type Server struct {
 	pb.UnimplementedAuthServiceServer // Embed the generated server interface
-	service *service.AuthService
+	grpc 							  *grpc.Server
+	service                           *service.AuthService
+	netListener                       net.Listener
 }
 
-func NewAuthServer(service *service.AuthService) *AuthServer {
-	return &AuthServer{service: service}
+func NewServer(service *service.AuthService, serverConfig *config.ServerConfig ) *Server {
+	server := &Server{service: service}
+
+	// Set up the gRPC server
+	grpcServer := grpc.NewServer()
+	pb.RegisterAuthServiceServer(grpcServer, server)
+	
+	lis, err := net.Listen("tcp", serverConfig.Address)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	server.netListener = lis
+
+	return server
 }
 
-func (s *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (s *Server) Serve() error {
+	return s.grpc.Serve(s.netListener)
+}
+
+func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	request := model.RegisterRequest{
 		Email:    req.Email,
 		Password: req.Password,
@@ -29,13 +53,13 @@ func (s *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb
 
 	res := pb.RegisterResponse{
 		UserId: response.User.ID,
-		Email: response.User.Email,
+		Email:  response.User.Email,
 	}
 
 	return &res, nil
 }
 
-func (s *AuthServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	request := model.LoginRequest{
 		Email:    req.Email,
 		Password: req.Password,
@@ -48,7 +72,7 @@ func (s *AuthServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Login
 
 	res := pb.LoginResponse{
 		UserId: response.User.ID,
-		Email: response.User.Email,
+		Email:  response.User.Email,
 	}
 
 	return &res, nil

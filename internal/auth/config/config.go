@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v3"
@@ -13,7 +14,7 @@ import (
 
 // Defult vales for config
 const (
-	defaultConfigPath = "config.yaml"
+	defaultConfigPath = "cmd/authservice/config.yaml"
 
 	defaultEnvironment = "production"
 )
@@ -34,7 +35,6 @@ var (
 
 // Set up the validator
 var configValidate *validator.Validate
-
 func init() {
 	configValidate = validator.New()
 }
@@ -43,39 +43,56 @@ func init() {
 type Config struct {
 	Environment string         `yaml:"environment" validate:"required,oneof=development test production"`
 	Database    DatabaseConfig `yaml:"database" validate:"required"`
+	Server      ServerConfig   `yaml:"server" validate:"required"`
 }
 
 func New() (*Config, error) {
 	if !flag.Parsed() {
 		flag.Parse() // Parse the flags if they have not been parsed
 	}
-	config := Config{} // New config
 
-	// Set the environment
-	config.Environment = getConfigValue(*flagEnvironment, envEnvironment, "", defaultEnvironment)
-
-	// fileConfig (config from .yaml file) to override default values
-	fileConfig := &Config{}
-	if config.Environment != "production" {
-		configFilePath := getConfigValue(*flagConfigPath, envConfigPath, "", defaultConfigPath)
-
-		var err error
-		fileConfig, err = loadConfigFromFile(configFilePath)
-		if err != nil {
+	// Load the config from file if available
+	configFileLoaded := true
+	configFilePath := getConfigValue(*flagConfigPath, envConfigPath, "", defaultConfigPath)
+	fileConfig, err := loadConfigFromFile(configFilePath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			fileConfig = &Config{} // If file does not exist, create a new empty config
+			configFileLoaded = false
+		} else {
 			return nil, fmt.Errorf("could not load config from file: %w", err)
 		}
 	}
-	
+
+	// CREATING CONFIG
+	config := Config{}
+
+	// Set the global config values
+	config.Environment = getConfigValue(*flagEnvironment, envEnvironment, fileConfig.Environment, defaultEnvironment)
+
 	// Set the database config
-	dbConfig, err := NewDatabaseConfig(fileConfig.Database)
+	dbConfig, err := NewDatabaseConfig(&fileConfig.Database)
 	if err != nil {
 		return nil, err
 	}
 	config.Database = *dbConfig
 
-	// Validate the config
+	// Set the server config
+	serverConfig, err := NewServerConfig(&fileConfig.Server)
+	if err != nil {
+		return nil, err
+	}
+	config.Server = *serverConfig
+
+	// VALIDATE CONFIG
+	// Validate the structs
 	if err := config.Validate(); err != nil {
 		return nil, fmt.Errorf("config validation error: %w", err)
+	}
+
+	// Check if config file is in production
+	if config.Environment == "production" && configFileLoaded {
+		return nil, errors.New("config file is not allowed in production environment")
 	}
 
 	return &config, nil

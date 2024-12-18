@@ -41,7 +41,7 @@ type DatabaseConfig struct {
 	DBName   string `yaml:"name" validate:"required" json:"-"`
 }
 
-func NewDatabaseConfig(fileDBConfig DatabaseConfig) (*DatabaseConfig, error) { // TODO DAT MORM VALIDATOR V GLOBAL -> CONFIG KER TUD NESTED STRUCTE DELA!
+func NewDatabaseConfig(fileDBConfig *DatabaseConfig) (*DatabaseConfig, error) {
 	if !flag.Parsed() {
 		flag.Parse() // Parse the flags if they have not been parsed
 	}
