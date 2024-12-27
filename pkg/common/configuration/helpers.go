@@ -79,9 +79,13 @@ func getFileConfig[T Configurable](config T) error {
 	return nil
 }
 
+// getConfigFilePath gets the config file path from the flag, environment, or default.
 var flagConfigFilePath = flag.String("config-file-path", "", "Config file path")
-
 func getConfigFilePath() string {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+
 	configFilePath := "config.yaml"
 	SetEnvValue(&configFilePath, "CONFIG_FILE_PATH")
 	SetFlagValue(&configFilePath, flagConfigFilePath)

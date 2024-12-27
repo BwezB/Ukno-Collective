@@ -4,28 +4,28 @@ import (
 	"github.com/BwezB/Wikno-backend/pkg/common/configuration"
 )
 
-type DatabaseConfig struct {
+type Database struct {
 	// Host is the address of the database server
-    Host     string `yaml:"host" validate:"required,hostname"`
+	Host string `yaml:"host" validate:"required,hostname"`
 	// Port is the port of the database server
-    Port     string `yaml:"port" validate:"required,number,min=1,max=65535"`
+	Port string `yaml:"port" validate:"required,number,min=1,max=65535"`
 	// User is the username to connect to the database
-    User     string `yaml:"user" validate:"required"`
+	User string `yaml:"user" validate:"required"`
 	// Password is the password to connect to the database
-    Password string `yaml:"password" validate:"required" json:"-"`
+	Password string `yaml:"password" validate:"required" json:"-"`
 	// DBName is the name of the database to connect to
-    DBName   string `yaml:"dbname" validate:"required"`
+	DBName string `yaml:"dbname" validate:"required"`
 }
 
-func (d *DatabaseConfig) SetDefaults() {
+func (d *Database) SetDefaults() {
 	d.Host = "localhost"
 	d.Port = "5432"
 	d.User = "postgres"
 	// Password is intentionally left blank
-	d.DBName = "wikno_auth" 
+	d.DBName = "auth_db"
 }
 
-func (d *DatabaseConfig) AddFromEnv() {
+func (d *Database) AddFromEnv() {
 	configuration.SetEnvValue(&d.Host, "DATABASE_HOST")
 	configuration.SetEnvValue(&d.Port, "DATABASE_PORT")
 	configuration.SetEnvValue(&d.User, "DATABASE_USER")
@@ -40,7 +40,8 @@ var (
 	flagDatabasePassword = configuration.NewFlag("database_password", "", "Database Password")
 	flagDatabaseName     = configuration.NewFlag("database_name", "", "Database Name")
 )
-func (d *DatabaseConfig) AddFromFlags() {
+
+func (d *Database) AddFromFlags() {
 	configuration.SetFlagValue(&d.Host, flagDatabaseHost)
 	configuration.SetFlagValue(&d.Port, flagDatabasePort)
 	configuration.SetFlagValue(&d.User, flagDatabaseUser)

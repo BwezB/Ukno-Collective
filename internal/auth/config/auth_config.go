@@ -2,13 +2,14 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/BwezB/Wikno-backend/pkg/common/configuration"
 )
 
 type AuthConfig struct {
 	configuration.BaseConfig
-	ServerConfig   ServerConfig
-	DatabaseConfig DatabaseConfig
+	Server   Server
+	Database Database
 }
 
 func New() (*AuthConfig, error) {
@@ -22,18 +23,18 @@ func New() (*AuthConfig, error) {
 
 func (a *AuthConfig) SetDefaults() {
 	a.BaseConfig.SetDefaults()
-	a.ServerConfig.SetDefaults()
-	a.DatabaseConfig.SetDefaults()
+	a.Server.SetDefaults()
+	a.Database.SetDefaults()
 }
 
 func (a *AuthConfig) AddFromEnv() {
 	a.BaseConfig.AddFromEnv()
-	a.ServerConfig.AddFromEnv()
-	a.DatabaseConfig.AddFromEnv()
+	a.Server.AddFromEnv()
+	a.Database.AddFromEnv()
 }
 
 func (a *AuthConfig) AddFromFlags() {
 	a.BaseConfig.AddFromFlags()
-	a.ServerConfig.AddFromFlags()
-	a.DatabaseConfig.AddFromFlags()
+	a.Server.AddFromFlags()
+	a.Database.AddFromFlags()
 }

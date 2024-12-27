@@ -2,12 +2,12 @@ package api
 
 import (
 	"context"
-	"net"
 	"log"
+	"net"
 
+	"github.com/BwezB/Wikno-backend/internal/auth/config"
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
-	"github.com/BwezB/Wikno-backend/internal/auth/config"
 
 	pb "github.com/BwezB/Wikno-backend/api/proto/auth"
 	"google.golang.org/grpc"
@@ -15,20 +15,20 @@ import (
 
 type Server struct {
 	pb.UnimplementedAuthServiceServer // Embed the generated server interface
-	grpcServer 							  *grpc.Server
+	grpcServer                        *grpc.Server
 	service                           *service.AuthService
 	netListener                       net.Listener
 }
 
-func NewServer(service *service.AuthService, serverConfig *config.ServerConfig ) *Server {
+func NewServer(service *service.AuthService, serverConfig *config.Server) *Server {
 	server := &Server{service: service}
 
 	// Set up the gRPC server
 	server.grpcServer = grpc.NewServer()
 	pb.RegisterAuthServiceServer(server.grpcServer, server)
-	
+
 	// Set up the listener
-	lis, err := net.Listen("tcp", serverConfig.Address)
+	lis, err := net.Listen("tcp", serverConfig.GetAddress())
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
