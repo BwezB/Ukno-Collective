@@ -1,4 +1,5 @@
-package configuration
+package baseconfig
+
 // Flags for the common configuration package
 
 var (

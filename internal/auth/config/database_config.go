@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/BwezB/Wikno-backend/pkg/common/configuration"
+	"github.com/BwezB/Wikno-backend/pkg/common/baseconfig"
 )
 
 type Database struct {
@@ -26,17 +26,17 @@ func (d *Database) SetDefaults() {
 }
 
 func (d *Database) AddFromEnv() {
-	configuration.SetEnvValue(&d.Host, envDBHost)
-	configuration.SetEnvValue(&d.Port, envDBPort)
-	configuration.SetEnvValue(&d.User, envDBUser)
-	configuration.SetEnvValue(&d.Password, envDBPassword)
-	configuration.SetEnvValue(&d.DBName, envDBName)
+	baseconfig.SetEnvValue(&d.Host, envDBHost)
+	baseconfig.SetEnvValue(&d.Port, envDBPort)
+	baseconfig.SetEnvValue(&d.User, envDBUser)
+	baseconfig.SetEnvValue(&d.Password, envDBPassword)
+	baseconfig.SetEnvValue(&d.DBName, envDBName)
 }
 
 func (d *Database) AddFromFlags() {
-	configuration.SetFlagValue(&d.Host, flagDatabaseHost)
-	configuration.SetFlagValue(&d.Port, flagDatabasePort)
-	configuration.SetFlagValue(&d.User, flagDatabaseUser)
-	configuration.SetFlagValue(&d.Password, flagDatabasePassword)
-	configuration.SetFlagValue(&d.DBName, flagDatabaseName)
+	baseconfig.SetFlagValue(&d.Host, flagDatabaseHost)
+	baseconfig.SetFlagValue(&d.Port, flagDatabasePort)
+	baseconfig.SetFlagValue(&d.User, flagDatabaseUser)
+	baseconfig.SetFlagValue(&d.Password, flagDatabasePassword)
+	baseconfig.SetFlagValue(&d.DBName, flagDatabaseName)
 }

@@ -1,5 +1,4 @@
-package configuration
-
+package baseconfig
 
 const (
 	// envEnvironment is the environment variable for the environment.

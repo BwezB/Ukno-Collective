@@ -3,7 +3,7 @@
 // 2. Environment variables
 // 3. Configuration file
 // 4. Default values
-package configuration
+package baseconfig
 
 import "fmt"
 
@@ -34,8 +34,6 @@ func (c *BaseConfig) SetDefaults() {
 func (c *BaseConfig) AddFromEnv() {
 	SetEnvValue(&c.Environment, envEnvironment)
 }
-
-
 
 func (c *BaseConfig) AddFromFlags() {
 	ParseFlags()

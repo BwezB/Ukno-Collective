@@ -3,18 +3,18 @@ package config
 import (
 	"fmt"
 
-	"github.com/BwezB/Wikno-backend/pkg/common/configuration"
+	"github.com/BwezB/Wikno-backend/pkg/common/baseconfig"
 )
 
 type AuthConfig struct {
-	configuration.BaseConfig
+	baseconfig.BaseConfig
 	Server   Server
 	Database Database
 }
 
 func New() (*AuthConfig, error) {
 	authConfig := &AuthConfig{}
-	if err := configuration.LoadValidatedConfig(authConfig); err != nil {
+	if err := baseconfig.LoadValidatedConfig(authConfig); err != nil {
 		return nil, fmt.Errorf("failed to load auth config: %w", err)
 	}
 

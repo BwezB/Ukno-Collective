@@ -1,4 +1,4 @@
-package configuration
+package baseconfig
 
 const (
 	// defaultEnvironment is the default value for the environment.

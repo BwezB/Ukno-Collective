@@ -1,4 +1,4 @@
-package configuration
+package baseconfig
 
 import (
 	"flag"
@@ -58,7 +58,6 @@ func LoadValidatedConfig[T Configurable](config T) error {
 
 	return nil
 }
-
 
 // METHODS FOR GETTING CONFIG FROM FILE
 
