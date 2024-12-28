@@ -17,7 +17,6 @@ func New() (*AuthConfig, error) {
 	if err := baseconfig.LoadValidatedConfig(authConfig); err != nil {
 		return nil, fmt.Errorf("failed to load auth config: %w", err)
 	}
-
 	return authConfig, nil
 }
 

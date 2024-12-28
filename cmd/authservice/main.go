@@ -1,12 +1,11 @@
 package main
 
 import (
-	"log"
-
 	"github.com/BwezB/Wikno-backend/internal/auth/api"
 	"github.com/BwezB/Wikno-backend/internal/auth/config"
 	"github.com/BwezB/Wikno-backend/internal/auth/db"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
+	"github.com/BwezB/Wikno-backend/pkg/logger"
 )
 
 func main() {
@@ -14,17 +13,20 @@ func main() {
 	// Get configuration
 	config, err := config.New()
 	if err != nil {
-		log.Fatal("Could not get configuration:", err)
+		logger.Fatal("Could not get configuration:", err)
 	}
+
+	// Set up logging
+	logger.SetLevel(config.Logger.Level)
 
 	// Connect to the database
 	database, err := db.New(&config.Database)
 	if err != nil {
-		log.Fatal("Could not connect to database:", err)
+		logger.Fatal("Could not connect to database:", err)
 	}
 
 	if err := database.AutoMigrate(); err != nil {
-		log.Fatal("Could not migrate database:", err)
+		logger.Fatal("Could not migrate database:", err)
 	}
 
 	// Set up the service
@@ -33,6 +35,6 @@ func main() {
 
 	// Start the server
 	if err := server.Serve(); err != nil {
-		log.Fatal("Could not start server:", err)
+		logger.Fatal("Could not start server:", err)
 	}
 }

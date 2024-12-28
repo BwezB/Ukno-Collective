@@ -17,6 +17,7 @@ type Configurable interface {
 // DEFINING BASE CONFIG
 type BaseConfig struct {
 	Environment string `yaml:"environment" validate:"required" json:"-"`
+	Logger	    Logger `yaml:"logger" validate:"required"`
 }
 
 func New() (*BaseConfig, error) {
