@@ -59,6 +59,7 @@ func LoadValidatedConfig[T Configurable](config T) error {
 	return nil
 }
 
+
 // METHODS FOR GETTING CONFIG FROM FILE
 
 // getFileConfig fills the given config from the yaml file.
@@ -80,14 +81,13 @@ func getFileConfig[T Configurable](config T) error {
 }
 
 // getConfigFilePath gets the config file path from the flag, environment, or default.
-var flagConfigFilePath = flag.String("config-file-path", "", "Config file path")
 func getConfigFilePath() string {
 	if !flag.Parsed() {
 		flag.Parse()
 	}
 
-	configFilePath := "config.yaml"
-	SetEnvValue(&configFilePath, "CONFIG_FILE_PATH")
+	configFilePath := defaultConfigFilePath
+	SetEnvValue(&configFilePath, envConfigFilePath)
 	SetFlagValue(&configFilePath, flagConfigFilePath)
 	return configFilePath
 }

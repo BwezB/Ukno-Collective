@@ -18,28 +18,20 @@ type Database struct {
 }
 
 func (d *Database) SetDefaults() {
-	d.Host = "localhost"
-	d.Port = "5432"
-	d.User = "postgres"
+	d.Host = defaultDBHost
+	d.Port = defaultDBPort
+	d.User = defaultDBUser
 	// Password is intentionally left blank
-	d.DBName = "auth_db"
+	d.DBName = defaultDBName
 }
 
 func (d *Database) AddFromEnv() {
-	configuration.SetEnvValue(&d.Host, "DATABASE_HOST")
-	configuration.SetEnvValue(&d.Port, "DATABASE_PORT")
-	configuration.SetEnvValue(&d.User, "DATABASE_USER")
-	configuration.SetEnvValue(&d.Password, "DATABASE_PASSWORD")
-	configuration.SetEnvValue(&d.DBName, "DATABASE_NAME")
+	configuration.SetEnvValue(&d.Host, envDBHost)
+	configuration.SetEnvValue(&d.Port, envDBPort)
+	configuration.SetEnvValue(&d.User, envDBUser)
+	configuration.SetEnvValue(&d.Password, envDBPassword)
+	configuration.SetEnvValue(&d.DBName, envDBName)
 }
-
-var (
-	flagDatabaseHost     = configuration.NewFlag("database_host", "", "Database Host")
-	flagDatabasePort     = configuration.NewFlag("database_port", "", "Database Port")
-	flagDatabaseUser     = configuration.NewFlag("database_user", "", "Database User")
-	flagDatabasePassword = configuration.NewFlag("database_password", "", "Database Password")
-	flagDatabaseName     = configuration.NewFlag("database_name", "", "Database Name")
-)
 
 func (d *Database) AddFromFlags() {
 	configuration.SetFlagValue(&d.Host, flagDatabaseHost)

@@ -28,21 +28,17 @@ func New() (*BaseConfig, error) {
 }
 
 func (c *BaseConfig) SetDefaults() {
-	c.Environment = "production"
+	c.Environment = defaultEnvironment
 }
 
 func (c *BaseConfig) AddFromEnv() {
-	SetEnvValue(&c.Environment, "ENVIRONMENT")
+	SetEnvValue(&c.Environment, envEnvironment)
 }
 
-var flagEnvironment = NewFlag("environment", "", "Environment")
+
 
 func (c *BaseConfig) AddFromFlags() {
 	ParseFlags()
 
 	SetFlagValue(&c.Environment, flagEnvironment)
-}
-
-func (c *BaseConfig) GetConfigFilePath() string {
-	return "config.yaml"
 }

@@ -10,19 +10,14 @@ type Server struct {
 }
 
 func (s *Server) SetDefaults() {
-	s.Host = "localhost"
-	s.Port = "50051"
+	s.Host = defaultServerHost
+	s.Port = defaultServerPort
 }
 
 func (s *Server) AddFromEnv() {
-	configuration.SetEnvValue(&s.Host, "SERVER_HOST")
-	configuration.SetEnvValue(&s.Port, "SERVER_PORT")
+	configuration.SetEnvValue(&s.Host, envServerHost)
+	configuration.SetEnvValue(&s.Port, envServerPort)
 }
-
-var (
-	flagServerHost = configuration.NewFlag("server_host", "", "Server Host")
-	flagServerPort = configuration.NewFlag("server_port", "", "Server Port")
-)
 
 func (s *Server) AddFromFlags() {
 	configuration.SetFlagValue(&s.Host, flagServerHost)
