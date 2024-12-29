@@ -21,107 +21,63 @@ func logMsgWithLevel(level Level, msg string) {
     log.Printf("%s | %-5s | %s:%d | %s\n", timestamp, levelNames[level], file, line, msg)
 }
 
-func logWithLevel(level Level, v ...interface{}) {
-    msg := fmt.Sprint(v...)
-    logMsgWithLevel(level, msg)
-}
-
-func logWithLevelf(level Level, format string, v ...interface{}) {
-    msg := fmt.Sprintf(format, v...)
-    logMsgWithLevel(level, msg)
+// formatMessage formats the message with the given format and values
+func formatMessage(format string, v ...interface{}) string {
+    if len(v) == 0 {
+        return format
+    }
+    return fmt.Sprintf(format, v...)
 }
 
 
 // LEVELS
-
-// Debugf logs debug information with formatting
-func Debug(v ...interface{}) {
-    if shouldLog(levelDebugVal) {
-        logWithLevel(levelDebugVal, v...)
-    }
-}
-
 // Debug logs debug information
-func Debugf(format string, v ...interface{}) {
+func Debug(format string, v ...interface{}) {
     if shouldLog(levelDebugVal) {
-        logWithLevelf(levelDebugVal, format, v...)
-    }
-}
-
-
-// Infof logs general information with formatting
-func Info(v ...interface{}) {
-    if shouldLog(levelInfoVal) {
-        logWithLevel(levelInfoVal, v...)
+        msg := formatMessage(format, v...)
+        logMsgWithLevel(levelDebugVal, msg)
     }
 }
 
 // Info logs general information
-func Infof(format string, v ...interface{}) {
+func Info(format string, v ...interface{}) {
     if shouldLog(levelInfoVal) {
-        logWithLevelf(levelInfoVal, format, v...)
-    }
-}
-
-
-// Warningf logs potential issues with formatting
-func Warning(v ...interface{}) {
-    if shouldLog(levelWarningVal) {
-        logWithLevel(levelWarningVal, v...)
+        msg := formatMessage(format, v...)
+        logMsgWithLevel(levelInfoVal, msg)
     }
 }
 
 // Warning logs potential issues
-func Warningf(format string, v ...interface{}) {
+func Warning(format string, v ...interface{}) {
     if shouldLog(levelWarningVal) {
-        logWithLevelf(levelWarningVal, format, v...)
-    }
-}
-
-
-// Errorf logs errors that didnt stop the application with formatting
-func Error(v ...interface{}) {
-    if shouldLog(levelErrorVal) {
-        logWithLevel(levelErrorVal, v...)
+        msg := formatMessage(format, v...)
+        logMsgWithLevel(levelWarningVal, msg)
     }
 }
 
 // Error logs errors that didnt stop the application
-func Errorf(format string, v ...interface{}) {
+func Error(format string, v ...interface{}) {
     if shouldLog(levelErrorVal) {
-        logWithLevelf(levelErrorVal, format, v...)
+        msg := formatMessage(format, v...)
+        logMsgWithLevel(levelErrorVal, msg)
     }
 }
 
-// ErrorErr logs errors and returns the error
-func ErrorErr(err error, v ...interface{}) error{
-    msg := fmt.Sprint(v...)
+// ErrorErr logs errors that didnt stop the application, and returns the error
+func ErrorErr(err error, format string, v ...interface{}) error{
+    msg := formatMessage(format, v...)
     if shouldLog(levelErrorVal) {
         logMsgWithLevel(levelErrorVal, msg)
     }
+
     return e.Error(err, msg)
-}
-
-// ErrorfErr logs errors with formatting and returns the error
-func ErrorfErr(err error, format string, v ...interface{}) error{
-    msg := fmt.Sprintf(format, v...)
-    if shouldLog(levelErrorVal) {
-        logMsgWithLevel(levelErrorVal, msg)
-    }
-    return e.Error(err, msg)
-}
-
-
-// Fatalf logs the issue and exits with formatting.
-func Fatal(v ...interface{}) {
-    logWithLevel(levelFatalVal, v...)
-    log.Fatal("Application terminated due to fatal error")
 }
 
 // Fatal logs the issue and exits.
-func Fatalf(format string, v ...interface{}) {
-    logWithLevelf(levelFatalVal, format, v...)
-    log.Fatal("Application terminated due to fatal error")
+func Fatal(format string, v ...interface{}) {
+    msg := formatMessage(format, v...)
+    logMsgWithLevel(levelFatalVal, msg)
+    log.Fatal("Application terminated due to fatal error") // Terminate the application
 }
 
 // TODO: 

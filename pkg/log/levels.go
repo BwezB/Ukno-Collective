@@ -60,7 +60,7 @@ func SetLevel[L Level | string](level L) error{
     }
 
     // If we reach this point, the level is invalid
-    Errorf("Invalid log level: %v", level)
+    Error("Invalid log level: %v", level)
     return fmt.Errorf("invalid log level: %v", level)
 }
 
