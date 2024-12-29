@@ -1,10 +1,10 @@
-package err
+package errors
 
 import (
 	"fmt"
 )
 
-func Error(msg string, err error) error {
+func Error(err error, msg string) error {
 	if err == nil {
 		return nil
 	}
