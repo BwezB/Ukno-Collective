@@ -2,12 +2,12 @@ package api
 
 import (
 	"context"
-	"log"
 	"net"
 
 	"github.com/BwezB/Wikno-backend/internal/auth/config"
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
+	l "github.com/BwezB/Wikno-backend/pkg/log"
 
 	pb "github.com/BwezB/Wikno-backend/api/proto/auth"
 	"google.golang.org/grpc"
@@ -20,7 +20,8 @@ type Server struct {
 	netListener                       net.Listener
 }
 
-func NewServer(service *service.AuthService, serverConfig *config.Server) *Server {
+func NewServer(service *service.AuthService, serverConfig *config.Server) (*Server, error) {
+	l.Info("Creating new server")
 	server := &Server{service: service}
 
 	// Set up the gRPC server
@@ -30,11 +31,11 @@ func NewServer(service *service.AuthService, serverConfig *config.Server) *Serve
 	// Set up the listener
 	lis, err := net.Listen("tcp", serverConfig.GetAddress())
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return nil, l.ErrorErr(err, "failed to listen")
 	}
 	server.netListener = lis
-
-	return server
+	
+	return server, nil
 }
 
 func (s *Server) Serve() error {

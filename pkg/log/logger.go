@@ -5,37 +5,34 @@ import (
     "log"
     "runtime"
     "time"
+
+    e "github.com/BwezB/Wikno-backend/pkg/errors"
 )
 
+// logWithLevel has to be called from a specific log function, that is called by the app!
+func logMsgWithLevel(level Level, msg string) {
+    // Get caller info
+    _, file, line, _ := runtime.Caller(2)
+    
+    // Format timestamp
+    timestamp := time.Now().Format("2006-01-02 15:04:05")
+    
+    // Final log format: timestamp | level | file:line | message
+    log.Printf("%s | %-5s | %s:%d | %s\n", timestamp, levelNames[level], file, line, msg)
+}
+
 func logWithLevel(level Level, v ...interface{}) {
-    // Get caller info
-    _, file, line, _ := runtime.Caller(2)
-    
-    // Format timestamp
-    timestamp := time.Now().Format("2006-01-02 15:04:05")
-    
-    // Create message with all context
-    message := fmt.Sprintln(v...)
-    
-    // Final log format: timestamp | level | file:line | message
-    log.Printf("%s | %-5s | %s:%d | %s", timestamp, levelNames[level], file, line, message)
+    msg := fmt.Sprint(v...)
+    logMsgWithLevel(level, msg)
 }
 
-// logWithLevel adds timestamp, level, and caller info
 func logWithLevelf(level Level, format string, v ...interface{}) {
-    // Get caller info
-    _, file, line, _ := runtime.Caller(2)
-    
-    // Format timestamp
-    timestamp := time.Now().Format("2006-01-02 15:04:05")
-    
-    // Create message with all context
-    message := fmt.Sprintf(format, v...)
-    
-    // Final log format: timestamp | level | file:line | message
-    log.Printf("%s | %-5s | %s:%d | %s", timestamp, levelNames[level], file, line, message)
+    msg := fmt.Sprintf(format, v...)
+    logMsgWithLevel(level, msg)
 }
 
+
+// LEVELS
 
 // Debugf logs debug information with formatting
 func Debug(v ...interface{}) {
@@ -94,6 +91,24 @@ func Errorf(format string, v ...interface{}) {
     if shouldLog(levelErrorVal) {
         logWithLevelf(levelErrorVal, format, v...)
     }
+}
+
+// ErrorErr logs errors and returns the error
+func ErrorErr(err error, v ...interface{}) error{
+    msg := fmt.Sprint(v...)
+    if shouldLog(levelErrorVal) {
+        logMsgWithLevel(levelErrorVal, msg)
+    }
+    return e.Error(err, msg)
+}
+
+// ErrorfErr logs errors with formatting and returns the error
+func ErrorfErr(err error, format string, v ...interface{}) error{
+    msg := fmt.Sprintf(format, v...)
+    if shouldLog(levelErrorVal) {
+        logMsgWithLevel(levelErrorVal, msg)
+    }
+    return e.Error(err, msg)
 }
 
 
