@@ -1,4 +1,4 @@
-package baseconfig
+package configs
 
 import (
 	"flag"
@@ -42,7 +42,7 @@ func SetFlagValue(prevValue *string, flag *string) {
 
 // METHODS FOR LOADING CONFIG
 
-// LoadConfig loads the given config from the defaults<file<env<flags.
+// LoadValidatedConfig loads the given (ANY) config from the defaults<file<env<flags.
 func LoadValidatedConfig[T Configurable](config T) error {
 	config.SetDefaults()
 

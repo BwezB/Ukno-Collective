@@ -1,4 +1,4 @@
-package baseconfig
+package configs
 
 // BASE CONFIG
 const (

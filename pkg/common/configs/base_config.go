@@ -3,7 +3,7 @@
 // 2. Environment variables
 // 3. Configuration file
 // 4. Default values
-package baseconfig
+package configs
 
 import "fmt"
 
@@ -17,7 +17,7 @@ type Configurable interface {
 // DEFINING BASE CONFIG
 type BaseConfig struct {
 	Environment string `yaml:"environment" validate:"required" json:"-"`
-	Logger	    Logger `yaml:"logger" validate:"required"`
+	Logger      Logger `yaml:"logger" validate:"required"`
 }
 
 func New() (*BaseConfig, error) {

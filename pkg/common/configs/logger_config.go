@@ -1,4 +1,4 @@
-package baseconfig
+package configs
 
 type Logger struct {
 	Level string `yaml:"level" validate:"required,oneof=debug info warning error"`
