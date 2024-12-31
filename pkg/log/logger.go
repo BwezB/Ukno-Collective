@@ -2,137 +2,106 @@ package log
 
 import (
 	"fmt"
-	"log"
-	"runtime"
-	"strings"
-	"time"
 
-	e "github.com/BwezB/Wikno-backend/pkg/errors"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-var counter int = 0
-func init() {
-	counter++
-	fmt.Println("Logger init", counter)
-	log.SetFlags(0) // Remove timestamp from log messages
-}
+// Global variables
+var (
+	l *zap.Logger
+	s *zap.SugaredLogger
+	config LoggerConfig
+)
 
-// logWithLevel has to be called from a specific log function, that is called by the app!
-func logMsgWithLevel(level Level, msg string) {
-	// Get caller info
-	_, file, line, _ := runtime.Caller(2)
-
-	// Format timestamp
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-
-	// Final log format: timestamp | level | file:line | message
-	log.Printf("%s | %s | %s\t [%s:%d]\n", timestamp, levelNames[level], msg, file, line)
-}
-
-func formatMessage(v ...interface{}) string {
-    parts := make([]string, len(v))
-    for i, item := range v {
-        parts[i] = fmt.Sprint(item)
-    }
-    return strings.Join(parts, " ")
-}
-
-func formatMessagef(format string, v ...interface{}) string {
-	return fmt.Sprintf(format, v...) // added \n so next message is in new line
-}
-
-// LEVELS
-// Debug logs debug information, joined with spaces.
-func Debug(v ...interface{}) {
-	if shouldLog(levelDebugVal) {
-		msg := formatMessage(v...)
-		logMsgWithLevel(levelDebugVal, msg)
+// InitLogger initializes the logger so it can be used.
+func InitLogger(conf LoggerConfig) error {
+	// Set config
+	config = conf
+	// Create appropreate config
+	var zapConfig zap.Config
+	switch conf.LoggerEnvironment {
+	case "development":
+		zapConfig = zap.NewDevelopmentConfig()
+	case "production":
+		zapConfig = zap.NewProductionConfig()
+	default:
+		return fmt.Errorf("Invalid logger environment: %s", conf.LoggerEnvironment)
 	}
-}
-// Debug logs debug information, formatted.
-func Debugf(format string, v ...interface{}) {
-	if shouldLog(levelDebugVal) {
-		msg := formatMessagef(format, v...)
-		logMsgWithLevel(levelDebugVal, msg)
+	
+	// Set the logger level
+	switch conf.Level {
+	case "debug":
+		zapConfig.Level.SetLevel(zapcore.DebugLevel)
+	case "info":
+		zapConfig.Level.SetLevel(zapcore.InfoLevel)
+	case "warn":
+		zapConfig.Level.SetLevel(zapcore.WarnLevel)
+	case "error":
+		zapConfig.Level.SetLevel(zapcore.ErrorLevel)
+	default:
+		return fmt.Errorf("Invalid logger level: %s", conf.Level)
 	}
+
+	zapConfig.Encoding = conf.Encoding
+	zapConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	zapConfig.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	zapConfig.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
+	zapConfig.EncoderConfig.EncodeDuration = zapcore.StringDurationEncoder
+	zapConfig.EncoderConfig.FunctionKey = "function"
+
+	// Create logger
+	var err error
+	l, err = zapConfig.Build()
+	if err != nil {
+		return err
+	}
+
+	s = l.Sugar()
+
+	return nil
 }
 
-// Info logs general information, joined with spaces.
-func Info(v ...interface{}) {
-	if shouldLog(levelInfoVal) {
-		msg := formatMessage(v...)
-		logMsgWithLevel(levelInfoVal, msg)
-	}
+// LOGGING FUNCTIONS
+func Debug(msg string, args zap.Field) {
+	l.Debug(msg, args)
 }
-// Info logs general information
-func Infof(format string, v ...interface{}) {
-	if shouldLog(levelInfoVal) {
-		msg := formatMessagef(format, v...)
-		logMsgWithLevel(levelInfoVal, msg)
-	}
+func Debugf(msg string, args ...interface{}) {
+	s.Debugf(msg, args...)
 }
 
-// Warning logs potential issues, joined with spaces.
-func Warning(v ...interface{}) {
-	if shouldLog(levelWarningVal) {
-		msg := formatMessage(v...)
-		logMsgWithLevel(levelWarningVal, msg)
-	}
+func Info(msg string, args zap.Field) {
+	l.Info(msg, args)
 }
-// Warning logs potential issues
-func Warningf(format string, v ...interface{}) {
-	if shouldLog(levelWarningVal) {
-		msg := formatMessagef(format, v...)
-		logMsgWithLevel(levelWarningVal, msg)
-	}
+func Infof(msg string, args ...interface{}) {
+	s.Infof(msg, args...)
 }
 
-// Error logs errors that didnt stop the application
-func Error(v ...interface{}) {
-	if shouldLog(levelErrorVal) {
-		msg := formatMessage(v...)
-		logMsgWithLevel(levelErrorVal, msg)
-	}
+func Warn(msg string, args zap.Field) {
+	l.Warn(msg, args)
 }
-// Error logs errors that didnt stop the application
-func Errorf(format string, v ...interface{}) {
-	if shouldLog(levelErrorVal) {
-		msg := formatMessagef(format, v...)
-		logMsgWithLevel(levelErrorVal, msg)
-	}
+func Warnf(msg string, args ...interface{}) {
+	s.Warnf(msg, args...)
 }
 
-// Errore logs errors that didnt stop the application, and returns the error
-func Errore(err error, v ...interface{}) error {
-	msg := formatMessage(v...)
-	if shouldLog(levelErrorVal) {
-		logMsgWithLevel(levelErrorVal, msg)
-	}
-	msg = strings.ToLower(msg)
-	return e.Error(err, msg)
+func Error(msg string, args zap.Field) {
+	l.Error(msg, args)
 }
-// Errore logs errors that didnt stop the application, and returns the error
-func Errorfe(err error, format string, v ...interface{}) error {
-	msg := formatMessagef(format, v...)
-	if shouldLog(levelErrorVal) {
-		logMsgWithLevel(levelErrorVal, msg)
-	}
-	msg = strings.ToLower(msg)
-	return e.Error(err, msg)
+func Errorf(msg string, args ...interface{}) {
+	s.Errorf(msg, args...)
 }
 
-// Fatal logs the issue and exits.
-func Fatal(v ...interface{}) {
-	msg := formatMessage(v...)
-	logMsgWithLevel(levelFatalVal, msg)
-	log.Fatal("Application terminated due to fatal error") // Terminate the application
+// OTHER FUNCTIONS
+// Sync flushes any buffered log entries
+func Sync() {
+	l.Sync()
 }
-// Fatal logs the issue and exits.
-func Fatalf(format string, v ...interface{}) {
-	msg := formatMessagef(format, v...)
-	logMsgWithLevel(levelFatalVal, msg)
-	log.Fatal("Application terminated due to fatal error") // Terminate the application
-}
+
+
+
+
+
+
 
 // TODO:
 // 1. nared error handling
