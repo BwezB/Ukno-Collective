@@ -5,7 +5,9 @@
 // 4. Default values
 package configs
 
-import "github.com/BwezB/Wikno-backend/pkg/log"
+import (
+	"fmt"
+)
 
 // CONFIGURABLE INTERFACE
 type Configurable interface {
@@ -17,30 +19,26 @@ type Configurable interface {
 // DEFINING BASE CONFIG
 type BaseConfig struct {
 	Environment string `yaml:"environment" validate:"required" json:"-"`
-	Logger      Logger `yaml:"logger" validate:"required"`
 }
 
 func New() (*BaseConfig, error) {
 	baseConfig := &BaseConfig{}
 	if err := LoadValidatedConfig(baseConfig); err != nil {
-		return nil, log.Errore(err, "Failed to load config - baseConfig")
+		return nil, fmt.Errorf("failed to load base config: %w", err)
 	}
 	return baseConfig, nil
 }
 
 func (c *BaseConfig) SetDefaults() {
 	c.Environment = defaultEnvironment
-	c.Logger.SetDefaults()
 }
 
 func (c *BaseConfig) AddFromEnv() {
 	SetEnvValue(&c.Environment, envEnvironment)
-	c.Logger.AddFromEnv()
 }
 
 func (c *BaseConfig) AddFromFlags() {
 	ParseFlags()
 
 	SetFlagValue(&c.Environment, flagEnvironment)
-	c.Logger.AddFromFlags()
 }

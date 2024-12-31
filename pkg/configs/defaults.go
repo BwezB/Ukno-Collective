@@ -9,7 +9,4 @@ const (
 )
 
 // LOGGER
-const (
-	// defaultLogLevel is the default value for the log level.
-	defaultLogLevel = "debug"
-)
+
