@@ -11,13 +11,14 @@ import (
 var (
 	l *zap.Logger
 	s *zap.SugaredLogger
-	config LoggerConfig
+	//config LoggerConfig
 )
 
 // InitLogger initializes the logger so it can be used.
 func InitLogger(conf LoggerConfig) error {
 	// Set config
-	config = conf
+	//config = conf
+	
 	// Create appropreate config
 	var zapConfig zap.Config
 	switch conf.LoggerEnvironment {
@@ -26,7 +27,7 @@ func InitLogger(conf LoggerConfig) error {
 	case "production":
 		zapConfig = zap.NewProductionConfig()
 	default:
-		return fmt.Errorf("Invalid logger environment: %s", conf.LoggerEnvironment)
+		return fmt.Errorf("invalid logger environment: %s", conf.LoggerEnvironment)
 	}
 	
 	// Set the logger level
@@ -40,7 +41,7 @@ func InitLogger(conf LoggerConfig) error {
 	case "error":
 		zapConfig.Level.SetLevel(zapcore.ErrorLevel)
 	default:
-		return fmt.Errorf("Invalid logger level: %s", conf.Level)
+		return fmt.Errorf("invalid logger level: %s", conf.Level)
 	}
 
 	zapConfig.Encoding = conf.Encoding
@@ -63,32 +64,27 @@ func InitLogger(conf LoggerConfig) error {
 }
 
 // LOGGING FUNCTIONS
-func Debug(msg string, args zap.Field) {
-	l.Debug(msg, args)
+// Debug: Detailed information for debugging
+func Debug(msg string, args ...zap.Field) {
+	l.Debug(msg, args...)
 }
 func Debugf(msg string, args ...interface{}) {
 	s.Debugf(msg, args...)
 }
 
-func Info(msg string, args zap.Field) {
-	l.Info(msg, args)
-}
-func Infof(msg string, args ...interface{}) {
-	s.Infof(msg, args...)
+// Info: Notable expected events
+func Info(msg string, args ...zap.Field) {
+	l.Info(msg, args...)
 }
 
-func Warn(msg string, args zap.Field) {
-	l.Warn(msg, args)
-}
-func Warnf(msg string, args ...interface{}) {
-	s.Warnf(msg, args...)
+// Warn: Handled issues
+func Warn(msg string, args ...zap.Field) {
+	l.Warn(msg, args...)
 }
 
-func Error(msg string, args zap.Field) {
-	l.Error(msg, args)
-}
-func Errorf(msg string, args ...interface{}) {
-	s.Errorf(msg, args...)
+// Error: Unhandled issues
+func Error(msg string, args ...zap.Field) {
+	l.Error(msg, args...)
 }
 
 // OTHER FUNCTIONS
