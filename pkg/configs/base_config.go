@@ -42,3 +42,27 @@ func (c *BaseConfig) AddFromFlags() {
 
 	SetFlagValue(&c.Environment, flagEnvironment)
 }
+
+// DEFAULTS
+const (
+	// defaultEnvironment is the default value for the environment.
+	defaultEnvironment = "production"
+	// defaultConfigFilePath is the default value for the config file path.
+	defaultConfigFilePath = "config.yaml"
+)
+
+// ENV
+const (
+	// envEnvironment is the environment variable for the environment.
+	envEnvironment = "ENVIRONMENT"
+	// envConfigFilePath is the environment variable for the config file path.
+	envConfigFilePath = "CONFIG_FILE_PATH"
+)
+
+// FLAGS
+var (
+	// flagEnvironment is the flag for the environment.
+	flagEnvironment = NewFlag("environment", "", "Environment")
+	// flagConfigFilePath is the flag for the config file path.
+	flagConfigFilePath = NewFlag("config-file-path", "", "Config file path")
+)
