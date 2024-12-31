@@ -4,7 +4,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/BwezB/Wikno-backend/internal/auth/config"
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 	"github.com/BwezB/Wikno-backend/pkg/log"
 )
@@ -13,7 +12,7 @@ type Database struct {
 	*gorm.DB
 }
 
-func New(config *config.Database) (*Database, error) {
+func New(config *DatabaseConfig) (*Database, error) {
 	defer log.DebugFunc("Address:", config.GetAddress(), "User:", config.User, "DBName:", config.DBName)()
 	dsn := config.GetDSN()
 

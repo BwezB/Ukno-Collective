@@ -3,8 +3,7 @@ package api
 import (
 	"context"
 	"net"
-
-	"github.com/BwezB/Wikno-backend/internal/auth/config"
+	
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
 	"github.com/BwezB/Wikno-backend/pkg/log"
@@ -20,15 +19,15 @@ type Server struct {
 	netListener                       net.Listener
 }
 
-func NewServer(service *service.AuthService, serverConfig *config.Server) (*Server, error) {
-	defer log.DebugFunc("service:", service, "serverConfig:", serverConfig)()
+func NewServer(service *service.AuthService, config *config.Server) (*Server, error) {
+	defer log.DebugFunc("service:", service, "config:", config)()
 
 	// VALIDATE INPUTS
 	if service == nil {
 		return nil, log.Errore(nil, "NewServer failed: service cannot be nil")
 	}
-	if serverConfig == nil {
-		return nil, log.Errore(nil, "NewServer failed: serverConfig cannot be nil")
+	if config == nil {
+		return nil, log.Errore(nil, "NewServer failed: config cannot be nil")
 	}
 
 	// BUSINESS LOGIC
@@ -40,9 +39,9 @@ func NewServer(service *service.AuthService, serverConfig *config.Server) (*Serv
 	pb.RegisterAuthServiceServer(server.grpcServer, server)
 
 	// Set up the listener
-	log.Info("Creating net listener with address:", serverConfig.GetAddress())
+	log.Info("Creating net listener with address:", config.GetAddress())
 
-	lis, err := net.Listen("tcp", serverConfig.GetAddress())
+	lis, err := net.Listen("tcp", config.GetAddress())
 	if err != nil {
 		return nil, log.Errore(err, "Failed to listen")
 	}
