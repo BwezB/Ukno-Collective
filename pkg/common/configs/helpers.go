@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/BwezB/Wikno-backend/pkg/log"
 	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v3"
 )
@@ -44,10 +45,11 @@ func SetFlagValue(prevValue *string, flag *string) {
 
 // LoadValidatedConfig loads the given (ANY) config from the defaults<file<env<flags.
 func LoadValidatedConfig[T Configurable](config T) error {
+	defer log.DebugFunc()()
 	config.SetDefaults()
 
 	if err := getFileConfig(config); err != nil { // Sets just the fields that are in the file.
-		return fmt.Errorf("failed to get config from file: %w", err)
+		return log.Errore(err, "Failed to get config from file")
 	}
 	config.AddFromEnv()
 	config.AddFromFlags()
@@ -81,9 +83,7 @@ func getFileConfig[T Configurable](config T) error {
 
 // getConfigFilePath gets the config file path from the flag, environment, or default.
 func getConfigFilePath() string {
-	if !flag.Parsed() {
-		flag.Parse()
-	}
+	ParseFlags()
 
 	configFilePath := defaultConfigFilePath
 	SetEnvValue(&configFilePath, envConfigFilePath)

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/BwezB/Wikno-backend/pkg/common/baseconfig"
+	"github.com/BwezB/Wikno-backend/pkg/common/configs"
 )
 
 type Database struct {
@@ -26,17 +26,25 @@ func (d *Database) SetDefaults() {
 }
 
 func (d *Database) AddFromEnv() {
-	baseconfig.SetEnvValue(&d.Host, envDBHost)
-	baseconfig.SetEnvValue(&d.Port, envDBPort)
-	baseconfig.SetEnvValue(&d.User, envDBUser)
-	baseconfig.SetEnvValue(&d.Password, envDBPassword)
-	baseconfig.SetEnvValue(&d.DBName, envDBName)
+	configs.SetEnvValue(&d.Host, envDBHost)
+	configs.SetEnvValue(&d.Port, envDBPort)
+	configs.SetEnvValue(&d.User, envDBUser)
+	configs.SetEnvValue(&d.Password, envDBPassword)
+	configs.SetEnvValue(&d.DBName, envDBName)
 }
 
 func (d *Database) AddFromFlags() {
-	baseconfig.SetFlagValue(&d.Host, flagDatabaseHost)
-	baseconfig.SetFlagValue(&d.Port, flagDatabasePort)
-	baseconfig.SetFlagValue(&d.User, flagDatabaseUser)
-	baseconfig.SetFlagValue(&d.Password, flagDatabasePassword)
-	baseconfig.SetFlagValue(&d.DBName, flagDatabaseName)
+	configs.SetFlagValue(&d.Host, flagDatabaseHost)
+	configs.SetFlagValue(&d.Port, flagDatabasePort)
+	configs.SetFlagValue(&d.User, flagDatabaseUser)
+	configs.SetFlagValue(&d.Password, flagDatabasePassword)
+	configs.SetFlagValue(&d.DBName, flagDatabaseName)
+}
+
+func (d *Database) GetAddress() string {
+	return d.Host + ":" + d.Port
+}
+
+func (d *Database) GetDSN() string {
+	return "host=" + d.Host + " port=" + d.Port + " user=" + d.User + " password=" + d.Password + " dbname=" + d.DBName + " sslmode=disable"
 }

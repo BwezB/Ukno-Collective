@@ -1,13 +1,12 @@
 package db
 
 import (
-	"fmt"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/BwezB/Wikno-backend/internal/auth/config"
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
+	"github.com/BwezB/Wikno-backend/pkg/log"
 )
 
 type Database struct {
@@ -15,30 +14,47 @@ type Database struct {
 }
 
 func New(config *config.Database) (*Database, error) {
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		config.Host, config.User, config.Password, config.DBName, config.Port,
-	)
+	defer log.DebugFunc("Address:", config.GetAddress(), "User:", config.User, "DBName:", config.DBName)()
+	dsn := config.GetDSN()
 
+	log.Info("Connecting to database with gorm")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		log.Error("Gorm open failed. Could not connect to", config.DBName, "at", config.GetAddress())
+		return nil, ErrDatabaseConnectionFailed
 	}
 
 	return &Database{db}, nil
 }
 
 func (db *Database) AutoMigrate() error {
-	return db.DB.AutoMigrate(&model.User{})
+	log.Info("Auto migrating database")
+	err := db.DB.AutoMigrate(&model.User{})
+	if err != nil {
+		return log.Errore(err, "Gorm auto migration failed. Could not migrate database")
+	}
+	return nil
 }
 
 func (db *Database) CreateUser(user *model.User) error {
 	res := db.Create(user)
-	return res.Error
+	if res.Error != nil {
+		if res.Error.Error() == "UNIQUE constraint failed: users.email" {
+			return ErrUserExists
+		}
+		return log.Errore(res.Error, "Gorm create failed. Could not create user")
+	}
+	return nil
 }
 
 func (db *Database) GetUserByEmail(email string) (*model.User, error) {
 	var user model.User
 	res := db.First(&user, "email = ?", email)
-	return &user, res.Error
+	if res.Error != nil {
+		if res.Error == gorm.ErrRecordNotFound {
+			return nil, ErrUserNotFound
+		}
+		return nil, log.Errore(res.Error, "Gorm first failed. Could not get user by email")
+	}
+	return &user, nil
 }

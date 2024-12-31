@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/BwezB/Wikno-backend/pkg/common/baseconfig"
+	"github.com/BwezB/Wikno-backend/pkg/common/configs"
 )
 
 type Server struct {
@@ -15,13 +15,13 @@ func (s *Server) SetDefaults() {
 }
 
 func (s *Server) AddFromEnv() {
-	baseconfig.SetEnvValue(&s.Host, envServerHost)
-	baseconfig.SetEnvValue(&s.Port, envServerPort)
+	configs.SetEnvValue(&s.Host, envServerHost)
+	configs.SetEnvValue(&s.Port, envServerPort)
 }
 
 func (s *Server) AddFromFlags() {
-	baseconfig.SetFlagValue(&s.Host, flagServerHost)
-	baseconfig.SetFlagValue(&s.Port, flagServerPort)
+	configs.SetFlagValue(&s.Host, flagServerHost)
+	configs.SetFlagValue(&s.Port, flagServerPort)
 }
 
 func (s *Server) GetAddress() string {
