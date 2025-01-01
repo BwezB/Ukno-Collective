@@ -6,7 +6,9 @@ import (
 	
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
-	"github.com/BwezB/Wikno-backend/pkg/log"
+
+	e "github.com/BwezB/Wikno-backend/pkg/errors"
+	l "github.com/BwezB/Wikno-backend/pkg/log"
 
 	pb "github.com/BwezB/Wikno-backend/api/proto/auth"
 	"google.golang.org/grpc"
@@ -19,19 +21,19 @@ type Server struct {
 	netListener                       net.Listener
 }
 
-func NewServer(service *service.AuthService, config *config.Server) (*Server, error) {
-	defer log.DebugFunc("service:", service, "config:", config)()
+func NewServer(service *service.AuthService, config *ServerConfig) (*Server, error) {
+	defer l.DebugFunc("NewServer (api)")() 
 
 	// VALIDATE INPUTS
 	if service == nil {
-		return nil, log.Errore(nil, "NewServer failed: service cannot be nil")
+		return nil, e.Wrap("service cannot be nil", ErrInvalidFunctionArgument)
 	}
 	if config == nil {
-		return nil, log.Errore(nil, "NewServer failed: config cannot be nil")
+		return nil, e.Wrap("config cannot be nil", ErrInvalidFunctionArgument)
 	}
 
 	// BUSINESS LOGIC
-	log.Info("Creating gprc server")
+	l.Info("Creating gprc server")
 	
 	server := &Server{service: service}
 	// Set up the gRPC server
@@ -39,11 +41,11 @@ func NewServer(service *service.AuthService, config *config.Server) (*Server, er
 	pb.RegisterAuthServiceServer(server.grpcServer, server)
 
 	// Set up the listener
-	log.Info("Creating net listener with address:", config.GetAddress())
+	l.Info("Creating net listener", l.String("address", config.GetAddress()))
 
 	lis, err := net.Listen("tcp", config.GetAddress())
 	if err != nil {
-		return nil, log.Errore(err, "Failed to listen")
+		return nil, e.Wrap("failed to create net listener", err)
 	}
 	server.netListener = lis
 
@@ -51,12 +53,12 @@ func NewServer(service *service.AuthService, config *config.Server) (*Server, er
 }
 
 func (s *Server) Serve() error {
-	log.Info("Starting gRPC server")
+	l.Info("Starting gRPC server")
 	return s.grpcServer.Serve(s.netListener)
 }
 
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	defer log.DebugFunc("email:", req.Email)()
+	defer l.DebugFunc("Server.Register (api)", l.String("request email", req.GetEmail()))()
 
 	request := model.RegisterRequest{
 		Email:    req.Email,
@@ -65,11 +67,11 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 
 	response, err := s.service.RegisterUser(&request)
 	if err != nil {
-		log.Error("Failed to register user:", err)
-		return nil, ErrUserExists // Return a custom error for the client
+		l.Warn("Failed to register user:", l.ErrField(err))
+		return nil, err
 	}
 
-	log.Debugf("User response: %v", response)
+	l.Debug("User response:", l.String("user id", response.User.ID), l.String("email", response.User.Email))
 
 	res := pb.RegisterResponse{
 		UserId: response.User.ID,
@@ -79,7 +81,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 }
 
 func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
-	defer log.DebugFunc("email:", req.Email)()
+	defer l.DebugFunc("Server.Login (api)")()
 
 	request := model.LoginRequest{
 		Email:    req.Email,
@@ -88,11 +90,10 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 
 	response, err := s.service.LoginUser(&request)
 	if err != nil {
-		if 
-		log.Error("Failed to login user:", err)
-		return nil, 
+		l.Warn("Failed to login user:", l.ErrField(err))
+		return nil, err
 	}
-	log.Debugf("User response: %v", response)
+	l.Debugf("User response: %v", response)
 
 	res := pb.LoginResponse{
 		UserId: response.User.ID,

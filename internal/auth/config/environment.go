@@ -1,5 +1,0 @@
-package config
-
-
-// SERVER CONFIG
-

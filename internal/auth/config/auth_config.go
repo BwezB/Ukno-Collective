@@ -19,7 +19,7 @@ type AuthConfig struct {
 func New() (*AuthConfig, error) {
 	authConfig := &AuthConfig{}
 	if err := c.LoadValidatedConfig(authConfig); err != nil {
-		return nil, 
+		return nil, e.Wrap("Failed to load config", err)
 	}
 	return authConfig, nil
 }
@@ -28,16 +28,19 @@ func (a *AuthConfig) SetDefaults() {
 	a.BaseConfig.SetDefaults()
 	a.Server.SetDefaults()
 	a.Database.SetDefaults()
+	a.Logger.SetDefaults()
 }
 
 func (a *AuthConfig) AddFromEnv() {
 	a.BaseConfig.AddFromEnv()
 	a.Server.AddFromEnv()
 	a.Database.AddFromEnv()
+	a.Logger.AddFromEnv()
 }
 
 func (a *AuthConfig) AddFromFlags() {
 	a.BaseConfig.AddFromFlags()
 	a.Server.AddFromFlags()
 	a.Database.AddFromFlags()
+	a.Logger.AddFromFlags()
 }
