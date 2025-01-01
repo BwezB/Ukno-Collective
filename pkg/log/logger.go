@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -9,8 +10,8 @@ import (
 
 // Global variables
 var (
-	l *zap.Logger
-	s *zap.SugaredLogger
+	zapLogger      *zap.Logger
+	zapSugarLogger *zap.SugaredLogger
 	//config LoggerConfig
 )
 
@@ -18,7 +19,7 @@ var (
 func InitLogger(conf LoggerConfig) error {
 	// Set config
 	//config = conf
-	
+
 	// Create appropreate config
 	var zapConfig zap.Config
 	switch conf.LoggerEnvironment {
@@ -29,7 +30,7 @@ func InitLogger(conf LoggerConfig) error {
 	default:
 		return fmt.Errorf("invalid logger environment: %s", conf.LoggerEnvironment)
 	}
-	
+
 	// Set the logger level
 	switch conf.Level {
 	case "debug":
@@ -44,64 +45,82 @@ func InitLogger(conf LoggerConfig) error {
 		return fmt.Errorf("invalid logger level: %s", conf.Level)
 	}
 
+	// General zapConfig settings
 	zapConfig.Encoding = conf.Encoding
-	zapConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	zapConfig.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	zapConfig.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
-	zapConfig.EncoderConfig.EncodeDuration = zapcore.StringDurationEncoder
-	zapConfig.EncoderConfig.FunctionKey = "function"
+
+	// Specific settings for development and production
+	if conf.LoggerEnvironment == "development" { // development
+		zapConfig.Development = true
+		zapConfig.DisableStacktrace = true
+		zapConfig.DisableCaller = false
+
+		timeEncoder := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+			enc.AppendString(t.Format("15:04:05.000"))
+		}
+
+		zapConfig.EncoderConfig = zapcore.EncoderConfig{
+			MessageKey:     "M",
+			LevelKey: 	    "L",
+			TimeKey:        "T",
+			//NameKey: 	    "N",
+			CallerKey:  	"C",
+			//FunctionKey:  	"F",
+			//StacktraceKey:  "S",
+			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+			EncodeTime:     timeEncoder,
+			EncodeDuration: zapcore.StringDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+
+		}
+	
+	} else if conf.LoggerEnvironment == "production" { // production
+		zapConfig.DisableStacktrace = false
+		zapConfig.DisableCaller = true
+
+		zapConfig.EncoderConfig = zapcore.EncoderConfig{
+			MessageKey:     "M",
+			LevelKey: 	    "L",
+			TimeKey:        "T",
+			NameKey: 	    "N",
+			CallerKey:  	"C",
+			FunctionKey:  	"F",
+			StacktraceKey:  "S",
+			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.StringDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		}
+	} else {
+		return fmt.Errorf("invalid logger environment: %s", conf.LoggerEnvironment)
+	}
 
 	// Create logger
 	var err error
-	l, err = zapConfig.Build()
+	zapLogger, err = zapConfig.Build(zap.AddCallerSkip(1)) // Skip 1 because of the wrapper function
 	if err != nil {
 		return err
 	}
 
-	s = l.Sugar()
+	zapSugarLogger = zapLogger.Sugar()
 
 	return nil
 }
 
-// LOGGING FUNCTIONS
-// Debug: Detailed information for debugging
-func Debug(msg string, args ...zap.Field) {
-	l.Debug(msg, args...)
+// DebugFunc logs the entry and EXIT!! of a function.
+// CALL IT LIKE THIS IN THE BEGINING OF FUNCTION:
+// defer log.DebugFunc()()
+func DebugFunc(funcName string, args ...zap.Field) func() {
+	funcName = "[ " + funcName + " ] "
+	zapLogger.Debug(funcName + "IN", args...)
+	start := time.Now()
+
+	return func() {
+		duration := time.Since(start)
+		zapLogger.Debug(funcName + "OUT", zap.Duration("duration", duration))
+	}
 }
-func Debugf(msg string, args ...interface{}) {
-	s.Debugf(msg, args...)
-}
-
-// Info: Notable expected events
-func Info(msg string, args ...zap.Field) {
-	l.Info(msg, args...)
-}
-
-// Warn: Handled issues
-func Warn(msg string, args ...zap.Field) {
-	l.Warn(msg, args...)
-}
-
-// Error: Unhandled issues
-func Error(msg string, args ...zap.Field) {
-	l.Error(msg, args...)
-}
-
-// OTHER FUNCTIONS
-// Sync flushes any buffered log entries
-func Sync() {
-	l.Sync()
-}
-
-
-
-
-
-
 
 // TODO:
-// 1. nared error handling
-// 2. dodej error handling in logging v app
 // 3. preverjanje zdravja
 // 4. skaliranje
 // 5. sporocilni sistem
