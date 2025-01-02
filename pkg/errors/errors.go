@@ -6,25 +6,25 @@ import (
 )
 
 // Error struct
-type appError struct {
+type AppError struct {
 	Code string
 	Msg  string
 	Err  error
 }
 
-func (e *appError) Error() string {
+func (e *AppError) Error() string {
 	if e.Err == nil {
 		return e.Msg
 	}
 	return fmt.Sprintf("%s: %s", e.Msg, e.Err.Error())
 }
 
-func (e *appError) Unwrap() error {
+func (e *AppError) Unwrap() error {
 	return e.Err
 }
 
-func (e *appError) Is(target error) bool {
-	t, ok := target.(*appError)
+func (e *AppError) Is(target error) bool {
+	t, ok := target.(*AppError)
 	if !ok {
 		return false
 	}
@@ -35,8 +35,8 @@ func (e *appError) Is(target error) bool {
 // FUNCTIONS FOR CREATING ERRORS
 
 // NewErrorType returns a new error type with the given code and a default message.
-func NewErrorType(code, default_msg string) *appError {
-	return &appError{
+func NewErrorType(code, default_msg string) *AppError {
+	return &AppError{
 		Code: code,
 		Msg:  default_msg,
 		Err:  nil,
@@ -46,14 +46,14 @@ func NewErrorType(code, default_msg string) *appError {
 // New returns a new checkable error.
 // External errors should be wrapped with this function.
 // If message is empty, the default message of the error type is used.
-func New(msg string, errorType *appError, err error) error {
+func New(msg string, errorType *AppError, err error) error {
 	if errorType == nil {
 		errorType = NewErrorType("UNKNOWN_ERROR", "An unknown error occurred")
 	}
 	if msg == "" {
 		msg = errorType.Msg
 	}
-	return &appError{
+	return &AppError{
 		Code: errorType.Code,
 		Msg:  msg,
 		Err:  err,
@@ -62,7 +62,7 @@ func New(msg string, errorType *appError, err error) error {
 
 // Wrap adds context to existing errors.
 func Wrap(msg string, err error) error {
-	return &appError{
+	return &AppError{
 		Msg: msg,
 		Err: err,
 	}
@@ -70,4 +70,8 @@ func Wrap(msg string, err error) error {
 
 func Is(err, target error) bool {
 	return errors.Is(err, target)
+}
+
+func As(err error, target interface{}) bool {
+	return errors.As(err, target)
 }

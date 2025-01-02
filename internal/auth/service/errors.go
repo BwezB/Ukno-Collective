@@ -9,7 +9,7 @@ import (
 var (
 	// ErrInvalidPassword is returned when the password is invalid
 	ErrInvalidPassword = e.NewErrorType("INVALID_PASSWORD", "Invalid password")
-	ErrServiceInternal = e.NewErrorType("SERVICE_INTERNAL", "Service internal error")
+	ErrInternal        = e.ErrInternal
 )
 
 // translateBycriptError translates a hash error to a service error
@@ -18,10 +18,10 @@ func translateBycriptError(err error) error {
 	case bcrypt.ErrMismatchedHashAndPassword:
 		return e.New("Password mismatch", ErrInvalidPassword, err)
 	case bcrypt.ErrPasswordTooLong:
-		return e.New("Password too long", ErrServiceInternal, err)
+		return e.New("Password too long", ErrInternal, err)
 	case bcrypt.ErrHashTooShort:
-		return e.New("Hash too short", ErrServiceInternal, err)
+		return e.New("Hash too short", ErrInternal, err)
 	default:
-		return ErrServiceInternal
+		return ErrInternal
 	}
 }

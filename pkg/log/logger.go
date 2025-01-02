@@ -69,7 +69,7 @@ func InitLogger(conf LoggerConfig) error {
 			EncodeLevel:    zapcore.CapitalColorLevelEncoder,
 			EncodeTime:     timeEncoder,
 			EncodeDuration: zapcore.StringDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
+			EncodeCaller:   zapcore.FullCallerEncoder,
 
 		}
 	

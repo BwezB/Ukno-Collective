@@ -68,7 +68,7 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	response, err := s.service.RegisterUser(&request)
 	if err != nil {
 		l.Warn("Failed to register user:", l.ErrField(err))
-		return nil, err
+		return nil, translateToGrpcError(err)
 	}
 
 	l.Debug("User response:", l.String("user id", response.User.ID), l.String("email", response.User.Email))
@@ -91,7 +91,7 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 	response, err := s.service.LoginUser(&request)
 	if err != nil {
 		l.Warn("Failed to login user:", l.ErrField(err))
-		return nil, err
+		return nil, translateToGrpcError(err)
 	}
 	l.Debugf("User response: %v", response)
 

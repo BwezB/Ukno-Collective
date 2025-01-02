@@ -16,12 +16,12 @@ type Database struct {
 }
 
 func New(config *DatabaseConfig) (*Database, error) {
-	defer l.DebugFunc( "New (db)")()
+	defer l.DebugFunc("New (db)")()
 	l.Info("Connecting to database with gorm",
 		l.String("address", config.GetAddress()),
 		l.String("user", config.User),
 		l.String("dbname", config.DBName))
-	
+
 	dsn := config.GetDSN()
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent), // Disable gorm logging
@@ -37,7 +37,7 @@ func (db *Database) AutoMigrate() error {
 	l.Info("Auto migrating database")
 	err := db.DB.AutoMigrate(&model.User{})
 	if err != nil {
-		return e.New("Auto migration failed", ErrDatabaseInternal, err)
+		return e.New("Auto migration failed", ErrInternal, err)
 	}
 	return nil
 }
