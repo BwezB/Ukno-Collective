@@ -29,40 +29,36 @@ func New() (*BaseConfig, error) {
 	return baseConfig, nil
 }
 
-func (c *BaseConfig) SetDefaults() {
-	c.Environment = defaultEnvironment
-}
-
-func (c *BaseConfig) AddFromEnv() {
-	SetEnvValue(&c.Environment, envEnvironment)
-}
-
-func (c *BaseConfig) AddFromFlags() {
-	ParseFlags()
-
-	SetFlagValue(&c.Environment, flagEnvironment)
-}
 
 // DEFAULTS
-const (
-	// defaultEnvironment is the default value for the environment.
-	defaultEnvironment = "production"
-	// defaultConfigFilePath is the default value for the config file path.
-	defaultConfigFilePath = "config.yaml"
-)
 
-// ENV
-const (
-	// envEnvironment is the environment variable for the environment.
-	envEnvironment = "ENVIRONMENT"
-	// envConfigFilePath is the environment variable for the config file path.
-	envConfigFilePath = "CONFIG_FILE_PATH"
-)
+// defaultConfigFilePath is the default value for the config file path.
+const defaultConfigFilePath = "config.yaml"
+
+// SetDefaults sets the default values for the base config.
+func (c *BaseConfig) SetDefaults() {
+	c.Environment = "production"
+}
+
+
+// ENVIRONMENT
+
+// envConfigFilePath is the environment variable for the config file path.
+const envConfigFilePath = "CONFIG_FILE_PATH"
+
+func (c *BaseConfig) AddFromEnv() {
+	SetEnvValue(&c.Environment, "ENVIRONMENT")
+}
+
 
 // FLAGS
+
 var (
-	// flagEnvironment is the flag for the environment.
-	flagEnvironment = NewFlag("environment", "", "Environment")
 	// flagConfigFilePath is the flag for the config file path.
 	flagConfigFilePath = NewFlag("config-file-path", "", "Config file path")
+
+	flagEnvironment = NewFlag("environment", "", "Environment")
 )
+func (c *BaseConfig) AddFromFlags() {
+	SetFlagValue(&c.Environment, flagEnvironment)
+}

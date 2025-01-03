@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v3"
@@ -12,14 +14,44 @@ import (
 // SET UP VALIDATOR
 var validate = validator.New()
 
-// METHODS FOR SETTING VALUES
+
+// ENVIRONMENT VARIABLES
 
 // SetEnvValue sets the value of the previous value to the environment value if the environment value is not empty.
-func SetEnvValue(prevValue *string, envKey string) {
-	if env := os.Getenv(envKey); env != "" {
-		*prevValue = env
+func SetEnvValue[T *string | *int | *bool | *time.Duration] (prevValue T, envKey string) {
+	env := os.Getenv(envKey)
+	if env == "" {
+		return // No env value, dont change the value
+	}
+
+	switch v := any(prevValue).(type) {
+	case *string:
+		*v = env
+	case *int:
+		parsed, err := strconv.Atoi(env)
+		if err != nil {
+			panic(fmt.Errorf("invalid int value for %s: %w", envKey, err))
+		}
+		*v = parsed
+	case *time.Duration:
+		parsed, err := time.ParseDuration(env)
+		if err != nil {
+			panic(fmt.Errorf("invalid duration value for %s: %w", envKey, err))
+		}
+		*v = parsed
+	case *bool:
+		parsed, err := strconv.ParseBool(env)
+		if err != nil {
+			panic(fmt.Errorf("invalid bool value for %s: %w", envKey, err))
+		}
+		*v = parsed
+	default:
+		panic(fmt.Errorf("unsupported type for SetEnvValue: %T", v))
 	}
 }
+
+
+// FLAGS
 
 // ParseFlags parses the flags if they have not been parsed.
 func ParseFlags() {
@@ -34,11 +66,37 @@ func NewFlag(name, value, usage string) *string {
 }
 
 // SetFlagValue sets the value of the previous value to the flag value if the flag value is not empty.
-func SetFlagValue(prevValue *string, flag *string) {
-	if *flag != "" {
-		*prevValue = *flag
+func SetFlagValue[T *string | *int | *bool | *time.Duration] (prevValue T, flag *string) {
+	if *flag == "" {
+		return // No flag value, dont change the value
+	}
+
+	switch v := any(prevValue).(type) {
+	case *string:
+		*v = *flag
+	case *int:
+		parsed, err := strconv.Atoi(*flag)
+		if err != nil {
+			panic(fmt.Errorf("invalid int value for %s: %w", *flag, err))
+		}
+		*v = parsed
+	case *time.Duration:
+		parsed, err := time.ParseDuration(*flag)
+		if err != nil {
+			panic(fmt.Errorf("invalid duration value for %s: %w", *flag, err))
+		}
+		*v = parsed
+	case *bool:
+		parsed, err := strconv.ParseBool(*flag)
+		if err != nil {
+			panic(fmt.Errorf("invalid bool value for %s: %w", *flag, err))
+		}
+		*v = parsed
+	default:
+		panic(fmt.Errorf("unsupported type for SetFlagValue: %T", v))
 	}
 }
+
 
 // METHODS FOR LOADING CONFIG
 
@@ -51,6 +109,7 @@ func LoadValidatedConfig[T Configurable](config T) error {
 	}
 
 	config.AddFromEnv()
+	ParseFlags()
 	config.AddFromFlags()
 
 	if err := validate.Struct(config); err != nil {
