@@ -1,13 +1,18 @@
 package db
 
 import (
+	"context"
+	"time"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 
+	c "github.com/BwezB/Wikno-backend/pkg/context"
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
+	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 )
 
@@ -16,8 +21,7 @@ type Database struct {
 }
 
 func New(config *DatabaseConfig) (*Database, error) {
-	defer l.DebugFunc("New (db)")()
-	l.Info("Connecting to database with gorm",
+	l.Debug("Connecting to database with gorm",
 		l.String("address", config.GetAddress()),
 		l.String("user", config.User),
 		l.String("dbname", config.DBName))
@@ -30,31 +34,77 @@ func New(config *DatabaseConfig) (*Database, error) {
 		return nil, e.New("Failed to connect to database", ErrDatabaseConnection, err)
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, e.New("Failed to get sql.DB from gorm.DB", ErrInternal, err)
+	}
+
+	// Set up connection pool
+	sqlDB.SetMaxOpenConns(config.MaxOpenConns)
+	sqlDB.SetMaxIdleConns(config.MaxIdleConns)
+	sqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
+
+	l.Info("Connected to database",
+		l.String("address", config.GetAddress()),
+		l.String("user", config.User),
+		l.String("dbname", config.DBName))
+
 	return &Database{db}, nil
 }
 
 func (db *Database) AutoMigrate() error {
-	l.Info("Auto migrating database")
+	l.Debug("Auto migrating database")
+
 	err := db.DB.AutoMigrate(&model.User{})
 	if err != nil {
 		return e.New("Auto migration failed", ErrInternal, err)
 	}
+
+	l.Info("Auto migration successful")
 	return nil
 }
 
-func (db *Database) CreateUser(user *model.User) error {
-	res := db.Create(user)
+func (db *Database) CreateUser(ctx context.Context, user *model.User) error {
+	l.Debug("Creating user",
+		l.String("email", user.Email),
+		l.String("request_id", c.GetRequestID(ctx)))
+	
+	res := db.WithContext(ctx).Create(user)
 	if res.Error != nil {
 		return TranslateDatabaseError(res.Error)
 	}
 	return nil
 }
 
-func (db *Database) GetUserByEmail(email string) (*model.User, error) {
+func (db *Database) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	l.Debug("Getting user by email",
+		l.String("email", email),
+		l.String("request_id", c.GetRequestID(ctx)))
+
 	var user model.User
-	res := db.First(&user, "email = ?", email)
+	res := db.WithContext(ctx).First(&user, "email = ?", email)
 	if res.Error != nil {
 		return nil, TranslateDatabaseError(res.Error)
 	}
 	return &user, nil
+}
+
+
+// HEALTH CHECK
+
+// HealthCheck checks the health of the database
+func (db *Database) HealthCheck(ctx context.Context) *h.HealthStatus {
+	l.Debug ("Checking database health")
+
+	if err := db.WithContext(ctx).Exec("SELECT 1").Error; err != nil {
+		return &h.HealthStatus{
+			Healthy: false,
+			Err:     e.New("health check gor database connection failed", ErrDatabaseConnection, err),
+			Time:    time.Now(),
+		}
+	}
+	return &h.HealthStatus{
+		Healthy: true,
+		Time:    time.Now(),
+	}
 }

@@ -1,10 +1,15 @@
 package service
 
 import (
+	"context"
+	"time"
+
 	"github.com/BwezB/Wikno-backend/internal/auth/db"
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 
+	c "github.com/BwezB/Wikno-backend/pkg/context"
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
+	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 
 	"golang.org/x/crypto/bcrypt"
@@ -18,9 +23,11 @@ func New(database *db.Database) *AuthService {
 	return &AuthService{db: database}
 }
 
-func (s *AuthService) RegisterUser(req *model.RegisterRequest) (*model.RegisterResponse, error) {
-	defer l.DebugFunc("RegisterUser (service)")()
-
+func (s *AuthService) RegisterUser(ctx context.Context, req *model.RegisterRequest) (*model.RegisterResponse, error) {
+	l.Debug("Registering user",
+		l.String("email", req.Email),
+		l.String("request_id", c.GetRequestID(ctx)))
+	
 	hashedPassword, err := hashPassword(req.Password)
 	if err != nil {
 		return nil, e.Wrap("RegisterUser failed", err)
@@ -31,23 +38,21 @@ func (s *AuthService) RegisterUser(req *model.RegisterRequest) (*model.RegisterR
 		Password: hashedPassword,
 	}
 
-	if err := s.db.CreateUser(&user); err != nil {
+	if err := s.db.CreateUser(ctx, &user); err != nil {
 		return nil, e.Wrap("RegisterUser failed", err)
 	}
 	response := model.RegisterResponse{User: user}
-
-	l.Info("User registration successful", 
-		l.String("email", user.Email), 
-		l.String("id", user.ID))
 
 	return &response, nil
 
 }
 
-func (s *AuthService) LoginUser(req *model.LoginRequest) (*model.LoginResponse, error) {
-	defer l.DebugFunc("LoginUser (service)")()
-
-	user, err := s.db.GetUserByEmail(req.Email)
+func (s *AuthService) LoginUser(ctx context.Context, req *model.LoginRequest) (*model.LoginResponse, error) {
+	l.Debug("Logging in user",
+		l.String("email", req.Email),
+		l.String("request_id", c.GetRequestID(ctx)))
+	
+	user, err := s.db.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, e.Wrap("LoginUser failed", err)
 	}
@@ -55,8 +60,6 @@ func (s *AuthService) LoginUser(req *model.LoginRequest) (*model.LoginResponse, 
 	if err := comparePasswords(user.Password, req.Password); err != nil {
 		return nil, e.Wrap("LoginUser failed", err)
 	}
-
-	l.Info("User login successful", l.String("email", user.Email), l.String("id", user.ID))
 
 	response := model.LoginResponse{User: *user}
 	return &response, nil
@@ -80,4 +83,22 @@ func comparePasswords(hashedPassword string, password string) error {
 	}
 
 	return nil
+}
+
+
+// HEALTH CHECK
+
+func (s *AuthService) HealthCheck(ctx context.Context) *h.HealthStatus {
+	// If the service is responding, it will respond...
+	_, err := hashPassword("health_check")
+	if err != nil {
+		return &h.HealthStatus{
+			Healthy: false, 
+			Time: time.Now(),
+			Err: err,
+		}
+	}
+
+	l.Debug("Health check successful")
+	return &h.HealthStatus{Healthy: true}
 }

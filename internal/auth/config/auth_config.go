@@ -4,6 +4,7 @@ import (
 	c "github.com/BwezB/Wikno-backend/pkg/configs"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
+	h "github.com/BwezB/Wikno-backend/pkg/health"
 
 	"github.com/BwezB/Wikno-backend/internal/auth/db"
 	"github.com/BwezB/Wikno-backend/internal/auth/api"
@@ -14,6 +15,7 @@ type AuthConfig struct {
 	Server   api.ServerConfig
 	Database db.DatabaseConfig
 	Logger   l.LoggerConfig
+	Health   h.HealthServiceConfig
 }
 
 func New() (*AuthConfig, error) {
@@ -29,6 +31,7 @@ func (a *AuthConfig) SetDefaults() {
 	a.Server.SetDefaults()
 	a.Database.SetDefaults()
 	a.Logger.SetDefaults()
+	a.Health.SetDefaults()
 }
 
 func (a *AuthConfig) AddFromEnv() {
@@ -36,6 +39,7 @@ func (a *AuthConfig) AddFromEnv() {
 	a.Server.AddFromEnv()
 	a.Database.AddFromEnv()
 	a.Logger.AddFromEnv()
+	a.Health.AddFromEnv()
 }
 
 func (a *AuthConfig) AddFromFlags() {
@@ -43,4 +47,5 @@ func (a *AuthConfig) AddFromFlags() {
 	a.Server.AddFromFlags()
 	a.Database.AddFromFlags()
 	a.Logger.AddFromFlags()
+	a.Health.AddFromFlags()
 }
