@@ -8,6 +8,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+
+// MY LOGGER
+
 // Global variables
 var (
 	zapLogger      *zap.Logger
@@ -105,6 +108,9 @@ func InitLogger(conf LoggerConfig) error {
 
 	return nil
 }
+
+
+// DEBUGFUNC LOGGING
 
 // DebugFunc logs the entry and EXIT!! of a function.
 // CALL IT LIKE THIS IN THE BEGINING OF FUNCTION:

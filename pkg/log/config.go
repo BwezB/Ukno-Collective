@@ -6,8 +6,8 @@ import (
 
 type LoggerConfig struct {
 	LoggerEnvironment string `yaml:"environment" validate:"required,oneof=development production"`
-	Level string `yaml:"level" validate:"required,oneof=debug info warning error"`
-	Encoding string `yaml:"encoding" validate:"required,oneof=json console"`
+	Level             string `yaml:"level" validate:"required,oneof=debug info warning error"`
+	Encoding          string `yaml:"encoding" validate:"required,oneof=json console"`
 }
 
 func (l *LoggerConfig) SetDefaults() {
