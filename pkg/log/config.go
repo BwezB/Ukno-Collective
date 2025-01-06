@@ -1,7 +1,7 @@
 package log
 
 import (
-	"github.com/BwezB/Wikno-backend/pkg/configs"
+	c "github.com/BwezB/Wikno-backend/pkg/configs"
 )
 
 type LoggerConfig struct {
@@ -10,50 +10,40 @@ type LoggerConfig struct {
 	Encoding          string `yaml:"encoding" validate:"required,oneof=json console"`
 }
 
-func (l *LoggerConfig) SetDefaults() {
-	l.LoggerEnvironment = defaultLoggerEnvironment
-	l.Level = defaultLogLevel
-	l.Encoding = defaultLogEncoding
-}
-
-func (l *LoggerConfig) AddFromEnv() {
-	configs.SetEnvValue(&l.LoggerEnvironment, envLoggerEnvironment)
-	configs.SetEnvValue(&l.Level, envLogLevel)
-	configs.SetEnvValue(&l.Encoding, envLogEncoding)
-}
-
-func (l *LoggerConfig) AddFromFlags() {
-	configs.SetFlagValue(&l.LoggerEnvironment, flagLoggerEnvironment)
-	configs.SetFlagValue(&l.Level, flagLogLevel)
-	configs.SetFlagValue(&l.Encoding, flagLogEncoding)
-}
 
 // DEFAULTS
-const (
-	// defaultLogEncoding is the default value for the log encoding.
-	defaultLoggerEnvironment = "development"
-	// defaultLogLevel is the default value for the log level.
-	defaultLogLevel = "debug"
-	// defaultLogEncoding is the default value for the log encoding.
-	defaultLogEncoding = "console"
-)
+
+func (l *LoggerConfig) SetDefaults() {
+	l.LoggerEnvironment = "development"
+	l.Level = "debug"
+	l.Encoding = "console"
+}
+
 
 // ENV
-const (
-	// envLoggerEnvironment is the default value for the logger environment.
-	envLoggerEnvironment = "LOGGER_ENVIRONMENT"
-	// envLogLevel is the environment variable for the log level.
-	envLogLevel = "LOG_LEVEL"
-	// envLogEncoding is the environment variable for the log encoding.
-	envLogEncoding = "LOG_ENCODING"
-)
+
+func (l *LoggerConfig) AddFromEnv() {
+	c.SetEnvValue(&l.LoggerEnvironment, "LOGGER_ENVIRONMENT")
+	c.SetEnvValue(&l.Level, "LOG_LEVEL")
+	c.SetEnvValue(&l.Encoding, "LOG_ENCODING")
+}
+
 
 // FLAGS
+
 var (
 	// flagLoggerEnvironment is the flag for the logger environment.
-	flagLoggerEnvironment = configs.NewFlag("logger_environment", "", "Logger Environment")
+	flagLoggerEnvironment = c.NewFlag("logger_environment", "", "Logger Environment")
 	// flagLogLevel is the flag for the log level.
-	flagLogLevel = configs.NewFlag("log_level", "", "Log Level")
+	flagLogLevel = c.NewFlag("log_level", "", "Log Level")
 	// flagLogEncoding is the flag for the log encoding.
-	flagLogEncoding = configs.NewFlag("log_encoding", "", "Log Encoding")
+	flagLogEncoding = c.NewFlag("log_encoding", "", "Log Encoding")
 )
+func (l *LoggerConfig) AddFromFlags() {
+	c.SetFlagValue(&l.LoggerEnvironment, flagLoggerEnvironment)
+	c.SetFlagValue(&l.Level, flagLogLevel)
+	c.SetFlagValue(&l.Encoding, flagLogEncoding)
+}
+
+// FLAGS
+

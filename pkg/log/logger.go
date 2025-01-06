@@ -125,9 +125,3 @@ func DebugFunc(funcName string, args ...zap.Field) func() {
 		zapLogger.Debug(funcName + "OUT", zap.Duration("duration", duration))
 	}
 }
-
-// TODO:
-// 4. skaliranje
-// 5. jwt tokeni
-// 6. ostali servisi
-// 7. sporocilni sistem
