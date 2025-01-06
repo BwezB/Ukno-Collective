@@ -20,7 +20,7 @@ type Database struct {
 	*gorm.DB
 }
 
-func New(config *DatabaseConfig) (*Database, error) {
+func New(config DatabaseConfig) (*Database, error) {
 	l.Debug("Connecting to database with gorm",
 		l.String("address", config.GetAddress()),
 		l.String("user", config.User),
@@ -94,8 +94,6 @@ func (db *Database) GetUserByEmail(ctx context.Context, email string) (*model.Us
 
 // HealthCheck checks the health of the database
 func (db *Database) HealthCheck(ctx context.Context) *h.HealthStatus {
-	l.Debug ("Checking database health")
-
 	if err := db.WithContext(ctx).Exec("SELECT 1").Error; err != nil {
 		return &h.HealthStatus{
 			Healthy: false,

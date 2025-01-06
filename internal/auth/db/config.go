@@ -2,6 +2,7 @@ package db
 
 import (
 	"time"
+	"strconv"
 
 	c "github.com/BwezB/Wikno-backend/pkg/configs"
 )
@@ -11,7 +12,7 @@ type DatabaseConfig struct {
 	// Host is the address of the database server
 	Host string `yaml:"host" validate:"required,hostname"`
 	// Port is the port of the database server
-	Port string `yaml:"port" validate:"required,number,min=1,max=65535"`
+	Port int `yaml:"port" validate:"required,min=1,max=65535"`
 	// User is the username to connect to the database
 	User string `yaml:"user" validate:"required"`
 	// Password is the password to connect to the database
@@ -32,7 +33,7 @@ type DatabaseConfig struct {
 
 func (d *DatabaseConfig) SetDefaults() {
 	d.Host = "localhost"
-	d.Port = "5432"
+	d.Port = 5432
 	d.User = "postgres"
 	// Password is intentionally left blank
 	d.DBName = "auth_db"
@@ -85,9 +86,9 @@ func (d *DatabaseConfig) AddFromFlags() {
 // HELPER FUNCTIONS
 
 func (d *DatabaseConfig) GetAddress() string {
-	return d.Host + ":" + d.Port
+	return d.Host + ":" + strconv.Itoa(d.Port)
 }
 
 func (d *DatabaseConfig) GetDSN() string {
-	return "host=" + d.Host + " port=" + d.Port + " user=" + d.User + " password=" + d.Password + " dbname=" + d.DBName + " sslmode=disable"
+	return "host=" + d.Host + " port=" + strconv.Itoa(d.Port) + " user=" + d.User + " password=" + d.Password + " dbname=" + d.DBName + " sslmode=disable"
 }

@@ -98,7 +98,5 @@ func (s *AuthService) HealthCheck(ctx context.Context) *h.HealthStatus {
 			Err: err,
 		}
 	}
-
-	l.Debug("Health check successful")
 	return &h.HealthStatus{Healthy: true}
 }

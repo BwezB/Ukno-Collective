@@ -16,6 +16,7 @@ import (
 
 	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
+	m "github.com/BwezB/Wikno-backend/pkg/metrics"
 )
 
 func main() {
@@ -30,26 +31,29 @@ func main() {
 	// Set up logging
 	l.InitLogger(config.Logger)
 
-	// Create the health checks service
+	// Create the health checks service to add checks to
 	healthService := h.NewHealthService(config.Health)
 
-	// Connect to the database
-	database, err := db.New(&config.Database)
+	// Create the database
+	database, err := db.New(config.Database)
 	if err != nil {
 		l.Fatal("Could not connect to database:", l.ErrField(err))
 	}
 	healthService.AddCheck(database) // Health check the database
-
+	// Auto migrate the database
 	if err := database.AutoMigrate(); err != nil {
 		l.Fatal("Could not migrate database:", l.ErrField(err))
 	}
 
-	// Set up the service
+	// Create the service
 	authService := service.New(database)
 	healthService.AddCheck(authService) // Health check the service
 
-	// Set up the server
-	server, err := api.NewServer(authService, healthService, &config.Server)
+	// Create the metrics
+	metrics := m.NewMetrics("authservice")
+
+	// Create the server
+	server, err := api.NewServer(authService, healthService, metrics, config.Server)
 	if err != nil {
 		l.Fatal("Could not create server:", l.ErrField(err))
 	}
@@ -57,14 +61,9 @@ func main() {
 
 
 	// START
+	// Start server and metrics server
+	server.Serve()
 
-	go func() {
-		if err := server.Serve(); err != nil {
-			l.Fatal("Could not start server:", l.ErrField(err))
-		}
-	}()
-
-	
 	// SHUTDOWN
 	// Create the stop channel
 	stop := make(chan os.Signal, 1)

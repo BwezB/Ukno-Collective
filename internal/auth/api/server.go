@@ -12,6 +12,7 @@ import (
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
 	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
+	m "github.com/BwezB/Wikno-backend/pkg/metrics"
 
 	pb "github.com/BwezB/Wikno-backend/api/proto/auth"
 	"google.golang.org/grpc"
@@ -22,40 +23,43 @@ type Server struct {
 	GrpcServer                        *grpc.Server
 	netListener                       net.Listener
 	service                           *service.AuthService
-	healthService				      *h.HealthService
+
+	metricsServer *m.MetricsServer
+	healthServer  *h.GRPCHealthServer
 }
 
-func NewServer(service *service.AuthService, healthService *h.HealthService, config *ServerConfig) (*Server, error) {
-	// VALIDATE INPUTS
-	if service == nil {
-		return nil, e.Wrap("service cannot be nil", ErrInvalidFunctionArgument)
-	}
-	if healthService == nil {
-		return nil, e.Wrap("healthService cannot be nil", ErrInvalidFunctionArgument)
-	}
-	if config == nil {
-		return nil, e.Wrap("config cannot be nil", ErrInvalidFunctionArgument)
-	}
+func NewServer(service *service.AuthService,
+			   healthService *h.HealthService,
+			   metrics *m.MetricsService,
+			   config ServerConfig) (*Server, error) {
 
-	// BUSINESS LOGIC
-	// Create the grpc server
-	l.Debug("Creating gprc server")
+	// Create a new server
+	l.Debug("Creating new server")
 	server := &Server{
 		service: service,
-		healthService: healthService,
 	}
 
+	// Set up the health server
+	l.Debug("Creating health server")
+	healthServer := h.NewGRPCHealthServer(healthService)
+	server.healthServer = healthServer
+	
+
+	// Set up the metrics server
+	l.Debug("Creating metrics server")
+	metricsServer := m.NewMetricsServer(metrics, config.Metrics)
+	server.metricsServer = metricsServer
+
 	// Set up the gRPC server
+	l.Debug("Creating gprc server")
 	server.GrpcServer = grpc.NewServer(
-		grpc.UnaryInterceptor(UnaryRequestIDInterceptor),
+		grpc.ChainUnaryInterceptor(
+			UnaryRequestIDInterceptor,
+			MetricsInterceptor(metricsServer.MetricsService),
+		),
 	)
-
-	// Create the health check server
-	grpcHealthServer := h.NewGRPCHealthServer(healthService)
-
-	// Register the servers
-	pb.RegisterAuthServiceServer(server.GrpcServer, server)
-	h.RegisterHealthServer(server.GrpcServer, grpcHealthServer)
+	pb.RegisterAuthServiceServer(server.GrpcServer, server) // Register auth service server
+	h.RegisterHealthServer(server.GrpcServer, healthServer) // Register the health server
 
 	// Set up the listener
 	l.Debug("Creating net listener", l.String("address", config.GetAddress()))
@@ -69,33 +73,45 @@ func NewServer(service *service.AuthService, healthService *h.HealthService, con
 	return server, nil
 }
 
-func (s *Server) Serve() error {
+func (s *Server) Serve() {
 	// Start the health checks
 	l.Debug("Starting health checks")
-	go func() {
-		s.healthService.Start()
-	}()
+	s.healthServer.Serve()
+
+	// Start the metrics server
+	l.Debug("Starting metrics server")
+	s.metricsServer.Serve()
 
 	// Start the gRPC server
 	l.Info("Starting gRPC server", l.String("address", s.netListener.Addr().String()))
-	return s.GrpcServer.Serve(s.netListener)
+	go func() {
+		err := s.GrpcServer.Serve(s.netListener)
+		if err != nil {
+			l.Error("gRPC server error", l.ErrField(err))
+		}
+	}()
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
 	l.Debug("Stopping health checks")
-	s.healthService.Stop()
+	s.healthServer.Shutdown()
+
+	l.Debug("Stopping metrics server")
+	err := s.metricsServer.Shutdown(ctx)
+	if err != nil {
+		return e.Wrap("failed to shutdown metrics server", err)
+	}
 
 	l.Info("Shutting down gRPC server")
 	s.GrpcServer.GracefulStop()
 	return nil
 }
 
-
 // AUTH SERVICE FUNCTIONS
 
 func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	l.Debug("Registering user", 
-		l.String("email", req.GetEmail()), 
+	l.Debug("Registering user",
+		l.String("email", req.GetEmail()),
 		l.String("request_id", c.GetRequestID(ctx)))
 
 	request := model.RegisterRequest{
@@ -147,16 +163,14 @@ func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResp
 		l.String("email", response.User.Email),
 		l.String("id", response.User.ID),
 		l.String("request_id", c.GetRequestID(ctx)))
-	
+
 	return &res, nil
 }
-
 
 // HEALTH CHECK
 
 func (s *Server) HealthCheck(ctx context.Context) *h.HealthStatus {
 	// If the server is responding, it will respond...
-	l.Debug("Health check successful")
 	return &h.HealthStatus{
 		Healthy: true,
 		Time:    time.Now(),
