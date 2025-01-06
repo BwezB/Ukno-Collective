@@ -127,8 +127,7 @@ func DebugFunc(funcName string, args ...zap.Field) func() {
 }
 
 // TODO:
-// 3. preverjanje zdravja
 // 4. skaliranje
-// 5. sporocilni sistem
-// 6. jwt tokeni
-// ostala funkcionalnost
+// 5. jwt tokeni
+// 6. ostali servisi
+// 7. sporocilni sistem

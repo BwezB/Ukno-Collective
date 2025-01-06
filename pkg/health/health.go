@@ -19,7 +19,7 @@ type HealthStatus struct {
 
 // HealthCheckable structs can be checked for health with HealthCheck()
 type HealthCheckable interface {
-	HealthCheck(ctx context.Context) *HealthStatus
+	HealthCheck(ctx context.Context) *HealthStatus // Err field is in the HealthStatus struct
 }
 
 type HealthService struct {
@@ -115,6 +115,7 @@ func (hs *HealthService) checkHealth() {
 			l.Warn("Health check failed", l.ErrField(status.Err))
 		}
 	}
-
+	
+	l.Debug("Health check complete", l.Bool("healthy", allHealthy))
 	hs.healthy.Store(allHealthy)
 }

@@ -44,6 +44,16 @@ func (hs *GRPCHealthServer) Watch(req *grpc_health_v1.HealthCheckRequest, srv gr
 	return status.Error(codes.Unimplemented, "Watch is not implemented")
 }
 
+func (hs *GRPCHealthServer) Serve() {
+	// Start the health checking service in a new goroutine
+	go func () {
+		hs.healthService.Start()
+	}()
+}
+
+func (hs *GRPCHealthServer) Shutdown() {
+	hs.healthService.Stop()
+}
 
 // HELPER FUNCTIONS
 
