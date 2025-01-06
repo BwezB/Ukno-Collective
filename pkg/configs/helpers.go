@@ -11,10 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// SET UP VALIDATOR
-var validate = validator.New()
-
-
 // ENVIRONMENT VARIABLES
 
 // SetEnvValue sets the value of the previous value to the environment value if the environment value is not empty.
@@ -101,7 +97,7 @@ func SetFlagValue[T *string | *int | *bool | *time.Duration] (prevValue T, flag 
 // METHODS FOR LOADING CONFIG
 
 // LoadValidatedConfig loads the given (ANY) config from the defaults<file<env<flags.
-func LoadValidatedConfig[T Configurable](config T) error {
+func LoadValidatedConfig[T Configurable](config T, validator *validator.Validate) error {
 	config.SetDefaults()
 
 	if err := getFileConfig(config); err != nil { // Sets just the fields that are in the file.
@@ -112,7 +108,7 @@ func LoadValidatedConfig[T Configurable](config T) error {
 	ParseFlags()
 	config.AddFromFlags()
 
-	if err := validate.Struct(config); err != nil {
+	if err := validator.Struct(config); err != nil {
 		return fmt.Errorf("failed to validate config: %w", err)
 	}
 
