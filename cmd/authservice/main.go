@@ -3,9 +3,9 @@ package main
 
 import (
 	"context"
+	"log" // Using log before logger is initialized
 	"os"
 	"os/signal"
-	"log" // Using log before logger is initialized
 	"syscall"
 	"time"
 
@@ -13,6 +13,7 @@ import (
 	"github.com/BwezB/Wikno-backend/internal/auth/config"
 	"github.com/BwezB/Wikno-backend/internal/auth/db"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
+	"github.com/go-playground/validator/v10"
 
 	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
@@ -22,8 +23,9 @@ import (
 func main() {
 	// SETUP
 
+	validator := validator.New()
 	// Get configuration
-	config, err := config.New()
+	config, err := config.New(validator)
 	if err != nil {
 		log.Fatalf("Could not get configuration: %v", err) // Using log, as logger is not yet initialized
 	}
@@ -40,20 +42,30 @@ func main() {
 		l.Fatal("Could not connect to database:", l.ErrField(err))
 	}
 	healthService.AddCheck(database) // Health check the database
+	// Drop tables if needed
+	if config.Database.DropTables {
+		if config.Environment == "production" {
+			l.Error("Cannot drop tables in production!")
+		} else {
+			if err := database.DropTables(); err != nil {
+				l.Fatal("Could not drop tables:", l.ErrField(err))
+			}
+		}
+	}
 	// Auto migrate the database
 	if err := database.AutoMigrate(); err != nil {
 		l.Fatal("Could not migrate database:", l.ErrField(err))
 	}
 
 	// Create the service
-	authService := service.New(database)
+	authService := service.New(database, config.Service)
 	healthService.AddCheck(authService) // Health check the service
 
 	// Create the metrics
 	metrics := m.NewMetrics("authservice")
 
 	// Create the server
-	server, err := api.NewServer(authService, healthService, metrics, config.Server)
+	server, err := api.NewServer(authService, healthService, metrics, validator, config.Server)
 	if err != nil {
 		l.Fatal("Could not create server:", l.ErrField(err))
 	}
@@ -79,3 +91,7 @@ func main() {
 		l.Fatal("Could not shutdown server:", l.ErrField(err))
 	}
 }
+
+// TODO:
+// 6. ostali servisi
+// 7. sporocilni sistem

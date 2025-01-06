@@ -10,7 +10,10 @@ import (
 )
 
 var (
-	ErrInvalidFunctionArgument = e.ErrInvalidFunctionArgument
+    // ErrInvalidRequest is returned when the request is invalid
+	ErrInvalidRequest = e.NewErrorType("INVALID_REQUEST", "Invalid request")
+    // ErrInternal is returned when an internal error occurs
+    ErrInternal = e.ErrInternal
 )
 
 // translateIntoGrpcError translates an error into a gRPC error.
@@ -40,6 +43,8 @@ func translateToGrpcError(err error) error {
     case e.Is(err, service.ErrInvalidPassword):
         code = codes.Unauthenticated
 		message = "Invalid password"
+    case e.Is(err, service.ErrInvalidToken):
+        code = codes.Unauthenticated
 
     // General errors
     case e.Is(err, e.ErrInvalidFunctionArgument):

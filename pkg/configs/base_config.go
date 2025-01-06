@@ -7,6 +7,8 @@ package configs
 
 import (
 	"fmt"
+
+	"github.com/go-playground/validator/v10"
 )
 
 // CONFIGURABLE INTERFACE
@@ -21,9 +23,9 @@ type BaseConfig struct {
 	Environment string `yaml:"environment" validate:"required" json:"-"`
 }
 
-func New() (*BaseConfig, error) {
+func New(validator *validator.Validate) (*BaseConfig, error) {
 	baseConfig := &BaseConfig{}
-	if err := LoadValidatedConfig(baseConfig); err != nil {
+	if err := LoadValidatedConfig(baseConfig, validator); err != nil {
 		return nil, fmt.Errorf("failed to load base config: %w", err)
 	}
 	return baseConfig, nil

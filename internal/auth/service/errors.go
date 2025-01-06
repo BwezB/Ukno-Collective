@@ -9,6 +9,10 @@ import (
 var (
 	// ErrInvalidPassword is returned when the password is invalid
 	ErrInvalidPassword = e.NewErrorType("INVALID_PASSWORD", "Invalid password")
+	
+	// ErrInvalidToken is returned when the token is invalid
+	ErrInvalidToken = e.NewErrorType("INVALID_TOKEN", "Invalid token")
+	// ErrInternal is returned when an internal error occurs
 	ErrInternal        = e.ErrInternal
 )
 

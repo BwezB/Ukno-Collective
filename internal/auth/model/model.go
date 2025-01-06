@@ -14,20 +14,20 @@ type User struct {
 }
 
 // DTOs
-type RegisterRequest struct {
+type AuthRequest struct {
 	Email    string `json:"email" validate:"required,email,max=255"`
-	Password string `json:"password" validate:"required,min=6,max=72"`
+	Password string `json:"-" validate:"required,min=8,max=32"`
 }
 
-type RegisterResponse struct {
-	User User
+type AuthResponse struct {
+	User  User   `json:"user" validate:"required"`
+	Token string `json:"token" validate:"required"`
 }
 
-type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
+type VerifyTokenRequest struct {
+	Token string `json:"token" validate:"required"`
 }
 
-type LoginResponse struct {
-	User User
+type VerifyTokenResponse struct {
+	User User `json:"user" validate:"required"`
 }

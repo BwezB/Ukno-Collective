@@ -20,13 +20,16 @@ type DatabaseConfig struct {
 	// DBName is the name of the database to connect to
 	DBName string `yaml:"dbname" validate:"required"`
 
-	// CONNECTION POOL
+
 	// MaxOpenConns is the maximum number of open connections to the database
 	MaxOpenConns int `yaml:"max_open_conns" validate:"number,min=1"`
 	// MaxIdleConns is the maximum number of idle connections to the database
 	MaxIdleConns int `yaml:"max_idle_conns" validate:"number,min=0"`
 	// ConnMaxLifetime is the maximum lifetime of a connection to the database
 	ConnMaxLifetime time.Duration `yaml:"conn_max_lifetime" validate:"number,min=1"`
+
+	// DropTables is a flag to drop tables on startup (DO NOT USE IN PRODUCTION)
+	DropTables bool `yaml:"drop_tables" validate:"boolean"`
 }
 
 // DEFAULTS
@@ -41,6 +44,8 @@ func (d *DatabaseConfig) SetDefaults() {
 	d.MaxOpenConns = 10
 	d.MaxIdleConns = 5
 	d.ConnMaxLifetime = 5 * time.Minute
+
+	d.DropTables = false
 }
 
 // ENVIRONMENT VARIABLES
@@ -55,6 +60,8 @@ func (d *DatabaseConfig) AddFromEnv() {
 	c.SetEnvValue(&d.MaxOpenConns, "DB_MAX_OPEN_CONNS")
 	c.SetEnvValue(&d.MaxIdleConns, "DB_MAX_IDLE_CONNS")
 	c.SetEnvValue(&d.ConnMaxLifetime, "DB_CONN_MAX_LIFETIME")
+
+	// DropTables should not be set from environment variables
 }
 
 // FLAGS
@@ -69,6 +76,8 @@ var (
 	flagDatabaseMaxOpenConns     = c.NewFlag("database_max_open_conns", "", "Database Max Open Connections")
 	flagDatabaseMaxIdleConns     = c.NewFlag("database_max_idle_conns", "", "Database Max Idle Connections")
 	flagDatabaseConnMaxLifetime  = c.NewFlag("database_conn_max_lifetime", "", "Database Connection Max Lifetime")
+
+	flagDatabaseDropTables = c.NewFlag("database_drop_tables", "", "DROPS ALL TABLES! DO NOT USE IN PRODUCTION")
 )
 
 func (d *DatabaseConfig) AddFromFlags() {
@@ -81,6 +90,8 @@ func (d *DatabaseConfig) AddFromFlags() {
 	c.SetFlagValue(&d.MaxOpenConns, flagDatabaseMaxOpenConns)
 	c.SetFlagValue(&d.MaxIdleConns, flagDatabaseMaxIdleConns)
 	c.SetFlagValue(&d.ConnMaxLifetime, flagDatabaseConnMaxLifetime)
+
+	c.SetFlagValue(&d.DropTables, flagDatabaseDropTables)
 }
 
 // HELPER FUNCTIONS

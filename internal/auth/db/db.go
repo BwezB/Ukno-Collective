@@ -64,6 +64,16 @@ func (db *Database) AutoMigrate() error {
 	return nil
 }
 
+func (db *Database) DropTables() error {
+	l.Debug("Resetting tables")
+	err := db.Migrator().DropTable(&model.User{})
+	if err != nil {
+		return e.New("Failed to reset tables", ErrInternal, err)
+	}
+	l.Info("Tables reset")
+	return nil
+}
+
 func (db *Database) CreateUser(ctx context.Context, user *model.User) error {
 	l.Debug("Creating user",
 		l.String("email", user.Email),
@@ -83,6 +93,19 @@ func (db *Database) GetUserByEmail(ctx context.Context, email string) (*model.Us
 
 	var user model.User
 	res := db.WithContext(ctx).First(&user, "email = ?", email)
+	if res.Error != nil {
+		return nil, TranslateDatabaseError(res.Error)
+	}
+	return &user, nil
+}
+
+func (db *Database) GetUserByID(ctx context.Context, id string) (*model.User, error) {
+	l.Debug("Getting user by id",
+		l.String("id", id),
+		l.String("request_id", c.GetRequestID(ctx)))
+
+	var user model.User
+	res := db.WithContext(ctx).First(&user, "id = ?", id)
 	if res.Error != nil {
 		return nil, TranslateDatabaseError(res.Error)
 	}

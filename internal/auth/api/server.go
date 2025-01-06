@@ -7,6 +7,7 @@ import (
 
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
+	"github.com/go-playground/validator/v10"
 
 	c "github.com/BwezB/Wikno-backend/pkg/context"
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
@@ -24,6 +25,8 @@ type Server struct {
 	netListener                       net.Listener
 	service                           *service.AuthService
 
+	validator *validator.Validate
+
 	metricsServer *m.MetricsServer
 	healthServer  *h.GRPCHealthServer
 }
@@ -31,12 +34,14 @@ type Server struct {
 func NewServer(service *service.AuthService,
 			   healthService *h.HealthService,
 			   metrics *m.MetricsService,
+			   validator *validator.Validate,
 			   config ServerConfig) (*Server, error) {
 
 	// Create a new server
 	l.Debug("Creating new server")
 	server := &Server{
 		service: service,
+		validator: validator,
 	}
 
 	// Set up the health server
@@ -109,28 +114,86 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 // AUTH SERVICE FUNCTIONS
 
-func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (s *Server) Register(ctx context.Context, req *pb.AuthRequest) (*pb.AuthResponse, error) {
 	l.Debug("Registering user",
 		l.String("email", req.GetEmail()),
 		l.String("request_id", c.GetRequestID(ctx)))
 
-	request := model.RegisterRequest{
+	// Translate the request
+	request := model.AuthRequest{
 		Email:    req.Email,
 		Password: req.Password,
 	}
 
+	// Validate the request
+	if err := s.validator.Struct(req); err != nil {
+		return nil, e.New("Request validation failed", ErrInvalidRequest, err)
+	}
+
+	// Register the user
 	response, err := s.service.RegisterUser(ctx, &request)
 	if err != nil {
 		l.Warn("Failed to register user:", l.ErrField(err))
 		return nil, translateToGrpcError(err)
 	}
 
-	res := pb.RegisterResponse{
+	// Validate the response
+	if err := s.validator.Struct(response); err != nil {
+		return nil, e.New("Response validation failed", ErrInternal, err)
+	}
+
+	// Translate the response
+	res := pb.AuthResponse{
 		UserId: response.User.ID,
 		Email:  response.User.Email,
+		Token:  response.Token,
 	}
 
 	l.Info("User registration successful",
+		l.String("email", response.User.Email),
+		l.String("id", response.User.ID),
+		l.String("token", response.Token),
+		l.String("request_id", c.GetRequestID(ctx)))
+
+	return &res, nil
+}
+
+func (s *Server) Login(ctx context.Context, req *pb.AuthRequest) (*pb.AuthResponse, error) {
+	l.Debug("Logging in user",
+		l.String("email", req.GetEmail()),
+		l.String("request_id", c.GetRequestID(ctx)))
+
+	// Translate the request
+	request := model.AuthRequest{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+
+	// Validate the request
+	if err := s.validator.Struct(req); err != nil {
+		return nil, e.New("Request validation failed", ErrInvalidRequest, err)
+	}
+
+	// Login the user
+	response, err := s.service.LoginUser(ctx, &request)
+	if err != nil {
+		l.Warn("Failed to login user:", l.ErrField(err))
+		return nil, translateToGrpcError(err)
+	}
+
+	// Validate the response
+	if err := s.validator.Struct(response); err != nil {
+		return nil, e.New("Response validation failed", ErrInternal, err)
+	}
+
+	// Translate the response
+	res := pb.AuthResponse{
+		UserId: response.User.ID,
+		Email:  response.User.Email,
+		Token:  response.Token,
+	}
+
+	l.Info("User login successful",
 		l.String("email", response.User.Email),
 		l.String("id", response.User.ID),
 		l.String("request_id", c.GetRequestID(ctx)))
@@ -138,28 +201,40 @@ func (s *Server) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.Reg
 	return &res, nil
 }
 
-func (s *Server) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
-	l.Debug("Logging in user",
-		l.String("email", req.GetEmail()),
+func (s *Server) VerifyToken(ctx context.Context, req *pb.VerifyTokenRequest) (*pb.VerifyTokenResponse, error) {
+	l.Debug("Verifying token",
+		l.String("token", req.GetToken()),
 		l.String("request_id", c.GetRequestID(ctx)))
 
-	request := model.LoginRequest{
-		Email:    req.Email,
-		Password: req.Password,
+	// Translate the request
+	request := model.VerifyTokenRequest{
+		Token: req.Token,
 	}
 
-	response, err := s.service.LoginUser(ctx, &request)
+	// Validate the request
+	if err := s.validator.Struct(req); err != nil {
+		return nil, e.New("Request validation failed", ErrInvalidRequest, err)
+	}
+
+	// Verify the token
+	response, err := s.service.VerifyToken(ctx, &request)
 	if err != nil {
-		l.Warn("Failed to login user:", l.ErrField(err))
+		l.Warn("Failed to verify token:", l.ErrField(err))
 		return nil, translateToGrpcError(err)
 	}
 
-	res := pb.LoginResponse{
+	// Validate the response
+	if err := s.validator.Struct(response); err != nil {
+		return nil, e.New("Response validation failed", ErrInternal, err)
+	}
+
+	// Translate the response
+	res := pb.VerifyTokenResponse{
 		UserId: response.User.ID,
 		Email:  response.User.Email,
 	}
 
-	l.Info("User login successful",
+	l.Info("Token verification successful",
 		l.String("email", response.User.Email),
 		l.String("id", response.User.ID),
 		l.String("request_id", c.GetRequestID(ctx)))
