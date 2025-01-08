@@ -26,6 +26,7 @@ func New(config DatabaseConfig) (*Database, error) {
 		l.String("user", config.User),
 		l.String("dbname", config.DBName))
 
+	// Connect to the database
 	dsn := config.GetDSN()
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent), // Disable gorm logging
@@ -34,12 +35,12 @@ func New(config DatabaseConfig) (*Database, error) {
 		return nil, e.New("Failed to connect to database", ErrDatabaseConnection, err)
 	}
 
+	// Set up connection pool
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, e.New("Failed to get sql.DB from gorm.DB", ErrInternal, err)
 	}
-
-	// Set up connection pool
+	
 	sqlDB.SetMaxOpenConns(config.MaxOpenConns)
 	sqlDB.SetMaxIdleConns(config.MaxIdleConns)
 	sqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
@@ -73,6 +74,9 @@ func (db *Database) DropTables() error {
 	l.Info("Tables reset")
 	return nil
 }
+
+
+// GET/SET METHODS
 
 func (db *Database) CreateUser(ctx context.Context, user *model.User) error {
 	l.Debug("Creating user",

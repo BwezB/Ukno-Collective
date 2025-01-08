@@ -5,15 +5,16 @@ import (
 	"strings"
 	"time"
 
-	c "github.com/BwezB/Wikno-backend/pkg/context"
 	m "github.com/BwezB/Wikno-backend/pkg/metrics"
+	c "github.com/BwezB/Wikno-backend/pkg/context"
 
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
+	"github.com/google/uuid"
 )
 
-// CONTEXT KEYS
+
+// REQUEST ID
 
 func UnaryRequestIDInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	requestID := uuid.New().String()
@@ -21,6 +22,7 @@ func UnaryRequestIDInterceptor(ctx context.Context, req interface{}, info *grpc.
 
 	return handler(ctx, req)
 }
+
 
 // METRICS
 
