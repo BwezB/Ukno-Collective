@@ -14,7 +14,7 @@ type HealthServiceConfig struct {
 // DEFAULTS
 
 func (hsc *HealthServiceConfig) SetDefaults() {
-	hsc.HealthCheckInterval = 5 * time.Second
+	hsc.HealthCheckInterval = time.Second
 }
 
 
