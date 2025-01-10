@@ -19,18 +19,17 @@ type Configurable interface {
 }
 
 // DEFINING BASE CONFIG
-type BaseConfig struct {
+type Common struct {
 	Environment string `yaml:"environment" validate:"required" json:"-"`
 }
 
-func New(validator *validator.Validate) (*BaseConfig, error) {
-	baseConfig := &BaseConfig{}
+func New(validator *validator.Validate) (*Common, error) {
+	baseConfig := &Common{}
 	if err := LoadValidatedConfig(baseConfig, validator); err != nil {
 		return nil, fmt.Errorf("failed to load base config: %w", err)
 	}
 	return baseConfig, nil
 }
-
 
 // DEFAULTS
 
@@ -38,20 +37,18 @@ func New(validator *validator.Validate) (*BaseConfig, error) {
 const defaultConfigFilePath = "config.yaml"
 
 // SetDefaults sets the default values for the base config.
-func (c *BaseConfig) SetDefaults() {
+func (c *Common) SetDefaults() {
 	c.Environment = "production"
 }
-
 
 // ENVIRONMENT
 
 // envConfigFilePath is the environment variable for the config file path.
 const envConfigFilePath = "CONFIG_FILE_PATH"
 
-func (c *BaseConfig) AddFromEnv() {
+func (c *Common) AddFromEnv() {
 	SetEnvValue(&c.Environment, "ENVIRONMENT")
 }
-
 
 // FLAGS
 
@@ -61,6 +58,7 @@ var (
 
 	flagEnvironment = NewFlag("environment", "", "Environment")
 )
-func (c *BaseConfig) AddFromFlags() {
+
+func (c *Common) AddFromFlags() {
 	SetFlagValue(&c.Environment, flagEnvironment)
 }
