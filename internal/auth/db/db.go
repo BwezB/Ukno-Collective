@@ -10,7 +10,7 @@ import (
 
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 
-	c "github.com/BwezB/Wikno-backend/pkg/context"
+	r "github.com/BwezB/Wikno-backend/pkg/requestid"
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
 	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
@@ -78,22 +78,31 @@ func (db *Database) DropTables() error {
 
 // GET/SET METHODS
 
-func (db *Database) CreateUser(ctx context.Context, user *model.User) error {
+// CreateUser needs to get a hashed password!
+func (db *Database) CreateUser(ctx context.Context, req *model.AuthRequest, hashedPassword string) (*model.User, error) {
 	l.Debug("Creating user",
-		l.String("email", user.Email),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("email", req.Email),
+		l.String("request_id", r.GetRequestID(ctx)))
+	
+	// Create the user object that will be stored in the DB
+	user := &model.User{
+		Email:    req.Email,
+		Password: hashedPassword,
+	}
 	
 	res := db.WithContext(ctx).Create(user)
 	if res.Error != nil {
-		return TranslateDatabaseError(res.Error)
+		return nil, TranslateDatabaseError(res.Error)
 	}
-	return nil
+
+	l.Info("Created user", l.String("email", req.Email), l.String("id", user.ID))
+	return user, nil
 }
 
 func (db *Database) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	l.Debug("Getting user by email",
 		l.String("email", email),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("request_id", r.GetRequestID(ctx)))
 
 	var user model.User
 	res := db.WithContext(ctx).First(&user, "email = ?", email)
@@ -106,7 +115,7 @@ func (db *Database) GetUserByEmail(ctx context.Context, email string) (*model.Us
 func (db *Database) GetUserByID(ctx context.Context, id string) (*model.User, error) {
 	l.Debug("Getting user by id",
 		l.String("id", id),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("request_id", r.GetRequestID(ctx)))
 
 	var user model.User
 	res := db.WithContext(ctx).First(&user, "id = ?", id)
@@ -124,7 +133,7 @@ func (db *Database) HealthCheck(ctx context.Context) *h.HealthStatus {
 	if err := db.WithContext(ctx).Exec("SELECT 1").Error; err != nil {
 		return &h.HealthStatus{
 			Healthy: false,
-			Err:     e.New("health check gor database connection failed", ErrDatabaseConnection, err),
+			Err:     e.New("health check gorm database connection failed", ErrDatabaseConnection, err),
 			Time:    time.Now(),
 		}
 	}

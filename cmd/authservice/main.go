@@ -13,8 +13,10 @@ import (
 	"github.com/BwezB/Wikno-backend/internal/auth/config"
 	"github.com/BwezB/Wikno-backend/internal/auth/db"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
+
 	"github.com/go-playground/validator/v10"
 
+	g "github.com/BwezB/Wikno-backend/pkg/graph"
 	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 	m "github.com/BwezB/Wikno-backend/pkg/metrics"
@@ -57,9 +59,18 @@ func main() {
 		l.Fatal("Could not migrate database:", l.ErrField(err))
 	}
 
+	// Create the graph service
+	graphService, err := g.NewGraphService(config.Graph)
+	if err != nil {
+		l.Fatal("Could not create graph service:", l.ErrField(err))
+	}
+	healthService.AddCheck(graphService) // Health check the graph service
+
 	// Create the service
-	authService := service.New(database, config.Service)
-	healthService.AddCheck(authService) // Health check the service
+	authService, err := service.NewAuthService(database, graphService, config.Service)
+	if err != nil {
+		l.Fatal("Could not create service:", l.ErrField(err))
+	}
 
 	// Create the metrics
 	metrics := m.NewMetrics("authservice")
@@ -69,8 +80,6 @@ func main() {
 	if err != nil {
 		l.Fatal("Could not create server:", l.ErrField(err))
 	}
-	healthService.AddCheck(server) // Health check the server
-
 
 	// START
 	// Start server and metrics server

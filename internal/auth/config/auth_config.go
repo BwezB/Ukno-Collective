@@ -3,22 +3,24 @@ package config
 import (
 	c "github.com/BwezB/Wikno-backend/pkg/configs"
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
+	g "github.com/BwezB/Wikno-backend/pkg/graph"
 	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/BwezB/Wikno-backend/internal/auth/api"
 	"github.com/BwezB/Wikno-backend/internal/auth/db"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
+	"github.com/go-playground/validator/v10"
 )
 
 type AuthConfig struct {
-	c.BaseConfig
+	c.Common `yaml:",inline"`
 	Server   api.ServerConfig
 	Database db.DatabaseConfig
 	Logger   l.LoggerConfig
 	Health   h.HealthServiceConfig
 	Service  service.ServiceConfig
+	Graph    g.GraphConfig
 }
 
 func New(validator *validator.Validate) (*AuthConfig, error) {
@@ -30,28 +32,31 @@ func New(validator *validator.Validate) (*AuthConfig, error) {
 }
 
 func (a *AuthConfig) SetDefaults() {
-	a.BaseConfig.SetDefaults()
+	a.Common.SetDefaults()
 	a.Server.SetDefaults()
 	a.Database.SetDefaults()
 	a.Logger.SetDefaults()
 	a.Health.SetDefaults()
 	a.Service.SetDefaults()
+	a.Graph.SetDefaults()
 }
 
 func (a *AuthConfig) AddFromEnv() {
-	a.BaseConfig.AddFromEnv()
+	a.Common.AddFromEnv()
 	a.Server.AddFromEnv()
 	a.Database.AddFromEnv()
 	a.Logger.AddFromEnv()
 	a.Health.AddFromEnv()
 	a.Service.AddFromEnv()
+	a.Graph.AddFromEnv()
 }
 
 func (a *AuthConfig) AddFromFlags() {
-	a.BaseConfig.AddFromFlags()
+	a.Common.AddFromFlags()
 	a.Server.AddFromFlags()
 	a.Database.AddFromFlags()
 	a.Logger.AddFromFlags()
 	a.Health.AddFromFlags()
 	a.Service.AddFromFlags()
+	a.Graph.AddFromFlags()
 }

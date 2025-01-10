@@ -3,13 +3,12 @@ package api
 import (
 	"context"
 	"net"
-	"time"
 
 	"github.com/BwezB/Wikno-backend/internal/auth/model"
 	"github.com/BwezB/Wikno-backend/internal/auth/service"
 	"github.com/go-playground/validator/v10"
 
-	c "github.com/BwezB/Wikno-backend/pkg/context"
+	r "github.com/BwezB/Wikno-backend/pkg/requestid"
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
 	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
@@ -59,8 +58,8 @@ func NewServer(service *service.AuthService,
 	l.Debug("Creating gprc server")
 	server.GrpcServer = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			UnaryRequestIDInterceptor,
-			MetricsInterceptor(metricsServer.MetricsService),
+			r.UnaryRequestIDInterceptor,
+			m.MetricsInterceptor(metricsServer.MetricsService),
 		),
 	)
 	pb.RegisterAuthServiceServer(server.GrpcServer, server) // Register auth service server
@@ -117,7 +116,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 func (s *Server) Register(ctx context.Context, req *pb.AuthRequest) (*pb.AuthResponse, error) {
 	l.Debug("Registering user",
 		l.String("email", req.GetEmail()),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("request_id", r.GetRequestID(ctx)))
 
 	// Translate the request
 	request := model.AuthRequest{
@@ -152,8 +151,7 @@ func (s *Server) Register(ctx context.Context, req *pb.AuthRequest) (*pb.AuthRes
 	l.Info("User registration successful",
 		l.String("email", response.User.Email),
 		l.String("id", response.User.ID),
-		l.String("token", response.Token),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("request_id", r.GetRequestID(ctx)))
 
 	return &res, nil
 }
@@ -161,7 +159,7 @@ func (s *Server) Register(ctx context.Context, req *pb.AuthRequest) (*pb.AuthRes
 func (s *Server) Login(ctx context.Context, req *pb.AuthRequest) (*pb.AuthResponse, error) {
 	l.Debug("Logging in user",
 		l.String("email", req.GetEmail()),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("request_id", r.GetRequestID(ctx)))
 
 	// Translate the request
 	request := model.AuthRequest{
@@ -196,16 +194,12 @@ func (s *Server) Login(ctx context.Context, req *pb.AuthRequest) (*pb.AuthRespon
 	l.Info("User login successful",
 		l.String("email", response.User.Email),
 		l.String("id", response.User.ID),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("request_id", r.GetRequestID(ctx)))
 
 	return &res, nil
 }
 
 func (s *Server) VerifyToken(ctx context.Context, req *pb.VerifyTokenRequest) (*pb.VerifyTokenResponse, error) {
-	l.Debug("Verifying token",
-		l.String("token", req.GetToken()),
-		l.String("request_id", c.GetRequestID(ctx)))
-
 	// Translate the request
 	request := model.VerifyTokenRequest{
 		Token: req.Token,
@@ -234,20 +228,10 @@ func (s *Server) VerifyToken(ctx context.Context, req *pb.VerifyTokenRequest) (*
 		Email:  response.User.Email,
 	}
 
-	l.Info("Token verification successful",
+	l.Debug("Token verification successful",
 		l.String("email", response.User.Email),
 		l.String("id", response.User.ID),
-		l.String("request_id", c.GetRequestID(ctx)))
+		l.String("request_id", r.GetRequestID(ctx)))
 
 	return &res, nil
-}
-
-// HEALTH CHECK
-
-func (s *Server) HealthCheck(ctx context.Context) *h.HealthStatus {
-	// If the server is responding, it will respond...
-	return &h.HealthStatus{
-		Healthy: true,
-		Time:    time.Now(),
-	}
 }
