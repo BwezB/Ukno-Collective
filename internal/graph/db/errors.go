@@ -1,4 +1,3 @@
-// internal/auth/db/errors.go
 package db
 
 import (
@@ -15,6 +14,7 @@ var (
 	ErrDatabaseConnection = e.NewErrorType("DB_CONNECTION_ERROR", "database connection error")
 	ErrDuplicateEntry     = e.NewErrorType("DB_DUPLICATE_ENTRY", "resource already exists")
 	ErrRecordNotFound     = e.NewErrorType("DB_NOT_FOUND", "resource not found")
+	ErrInvalidRequest     = e.ErrInvalidRequest
 )
 
 // TranslateDatabaseError converts GORM and postgres errors into internal application errors

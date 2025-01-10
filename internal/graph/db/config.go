@@ -39,7 +39,7 @@ func (d *DatabaseConfig) SetDefaults() {
 	d.Port = 5432
 	d.User = "postgres"
 	// Password is intentionally left blank
-	d.DBName = "auth_db"
+	d.DBName = "graph_db"
 
 	d.MaxOpenConns = 10
 	d.MaxIdleConns = 5
