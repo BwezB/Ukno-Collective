@@ -4,6 +4,8 @@
 // 	protoc        v5.29.1
 // source: api/proto/auth/auth.proto
 
+// Package auth provides authentication and authorization services
+
 package auth
 
 import (
@@ -20,12 +22,19 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// AuthRequest represents the authentication request for both registration and login.
 type AuthRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Email    string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	// [REQUIRED] [MAX LEN 255]
+	// Email must be a valid email address format (e.g., "user@example.com").
+	// Example: "john.doe@company.com"
+	Email string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	// [REQUIRED] [MIN LEN 8] [MAX LEN 32]
+	// Password is hashed on the server before storing.
+	// Example: "MySecurePass123!"
 	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 }
 
@@ -73,14 +82,26 @@ func (x *AuthRequest) GetPassword() string {
 	return ""
 }
 
+// AuthResponse represents the server's response to successful authentication.
 type AuthResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// Unique identifier for the user.
+	// Format: UUID v4.
+	// Example: "123e4567-e89b-12d3-a456-426614174000"
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Email  string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	Token  string `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
+	// Email address associated with the authenticated user.
+	// Email must be a valid email address format (e.g., "user@example.com").
+	// Example: "john.doe@company.com"
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// JWT token for subsequent authenticated requests.
+	// Format: JWT string (header.payload.signature).
+	// Must be included in subsequent requests as "authorization" metadata.
+	// Valid for: 24 hours by default.
+	// Example: "eyJhbGciOiJIUzI1NiIs..."
+	Token string `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
 }
 
 func (x *AuthResponse) Reset() {
@@ -134,11 +155,16 @@ func (x *AuthResponse) GetToken() string {
 	return ""
 }
 
+// VerifyTokenRequest represents a token verification request.
 type VerifyTokenRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// [REQUIRED]
+	// JWT token to verify.
+	// Must be a valid JWT token previously issued by the auth service.
+	// Example: "eyJhbGciOiJIUzI1NiIs..."
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 }
 
@@ -179,13 +205,20 @@ func (x *VerifyTokenRequest) GetToken() string {
 	return ""
 }
 
+// VerifyTokenResponse contains user information if token is valid.
 type VerifyTokenResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// User ID associated with the token.
+	// Format: UUID v4.
+	// Example: "123e4567-e89b-12d3-a456-426614174000"
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Email  string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
+	// Email address associated with the user.
+	// Format: valid email address.
+	// Example: "john.doe@company.com"
+	Email string `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
 }
 
 func (x *VerifyTokenResponse) Reset() {

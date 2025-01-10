@@ -7,59 +7,55 @@ option go_package = "github.com/BwezB/Wikno-backend/api/proto/auth";
 
 // AuthRequest represents the authentication request for both registration and login.
 message AuthRequest {
-    // Email must be a valid email address format (e.g., "user@example.com")
-    // Maximum length: 255 characters
-    // Required field
+    // [REQUIRED] [MAX LEN 255] 
+    // Email must be a valid email address format (e.g., "user@example.com").
     // Example: "john.doe@company.com"
     string email = 1;
 
-    // Password must meet the following criteria:
-    // - Minimum length: 8 characters
-    // - Maximum length: 32 characters
-    // - Required field
-    // - Not stored in plain text (hashed before storage)
+    // [REQUIRED] [MIN LEN 8] [MAX LEN 32]
+    // Password is hashed on the server before storing.
     // Example: "MySecurePass123!"
     string password = 2;
 }
 
 // AuthResponse represents the server's response to successful authentication.
 message AuthResponse {
-    // Unique identifier for the user
-    // Format: UUID v4
+    // Unique identifier for the user. 
+    // Format: UUID v4.
     // Example: "123e4567-e89b-12d3-a456-426614174000"
     string user_id = 1;
 
-    // Email address associated with the authenticated user
-    // Same format as in AuthRequest
+    // Email address associated with the authenticated user.
+    // Email must be a valid email address format (e.g., "user@example.com").
     // Example: "john.doe@company.com"
     string email = 2;
 
-    // JWT token for subsequent authenticated requests
-    // Format: JWT string (header.payload.signature)
-    // Valid for: 24 hours by default (configurable)
-    // Must be included in subsequent requests as "authorization" metadata
+    // JWT token for subsequent authenticated requests. 
+    // Format: JWT string (header.payload.signature). 
+    // Must be included in subsequent requests as "authorization" metadata. 
+    // Valid for: 24 hours by default.
     // Example: "eyJhbGciOiJIUzI1NiIs..."
     string token = 3;
 }
 
 // VerifyTokenRequest represents a token verification request.
 message VerifyTokenRequest {
-    // JWT token to verify
-    // Must be a valid JWT token previously issued by the auth service
-    // Format: JWT string (header.payload.signature)
+    // [REQUIRED]
+    // JWT token to verify. 
+    // Must be a valid JWT token previously issued by the auth service. 
     // Example: "eyJhbGciOiJIUzI1NiIs..."
     string token = 1;
 }
 
 // VerifyTokenResponse contains user information if token is valid.
 message VerifyTokenResponse {
-    // User ID associated with the token
-    // Format: UUID v4
+    // User ID associated with the token.
+    // Format: UUID v4.
     // Example: "123e4567-e89b-12d3-a456-426614174000"
     string user_id = 1;
 
-    // Email address associated with the user
-    // Format: valid email address
+    // Email address associated with the user.
+    // Format: valid email address.
     // Example: "john.doe@company.com"
     string email = 2;
 }
@@ -67,51 +63,24 @@ message VerifyTokenResponse {
 // AuthService provides authentication and authorization functionality.
 service AuthService {
     // Register creates a new user account.
-    // 
-    // Request body: AuthRequest
-    // Response: AuthResponse
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If email format is invalid or password doesn't meet requirements
-    // - ALREADY_EXISTS: If the email is already registered
-    // - INTERNAL: For server-side errors
-    //
-    // Example curl:
-    // curl -X POST http://localhost:50051/auth/register \
-    //   -H 'Content-Type: application/json' \
-    //   -d '{"email":"john.doe@company.com","password":"MySecurePass123!"}'
+    // Errors:
+    // (INVALID_ARGUMENT): If email format is invalid or password doesn't meet requirements
+    // (ALREADY_EXISTS): If the email is already registered
+    // (INTERNAL): For server-side errors
     rpc Register(AuthRequest) returns (AuthResponse);
 
     // Login authenticates an existing user.
-    // 
-    // Request body: AuthRequest
-    // Response: AuthResponse
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If email format is invalid
-    // - NOT_FOUND: If the email is not registered
-    // - UNAUTHENTICATED: If the password is incorrect
-    // - INTERNAL: For server-side errors
-    //
-    // Example curl:
-    // curl -X POST http://localhost:50051/auth/login \
-    //   -H 'Content-Type: application/json' \
-    //   -d '{"email":"john.doe@company.com","password":"MySecurePass123!"}'
+    // Errors:
+    // (INVALID_ARGUMENT): If email format is invalid
+    // (NOT_FOUND): If the email is not registered
+    // (UNAUTHENTICATED): If the password is incorrect
+    // (INTERNAL): For server-side errors
     rpc Login(AuthRequest) returns (AuthResponse);
 
     // VerifyToken validates a JWT token and returns associated user information.
-    // 
-    // Request body: VerifyTokenRequest
-    // Response: VerifyTokenResponse
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If token format is invalid
-    // - UNAUTHENTICATED: If token is expired or invalid
-    // - INTERNAL: For server-side errors
-    //
-    // Example curl:
-    // curl -X POST http://localhost:50051/auth/verify \
-    //   -H 'Content-Type: application/json' \
-    //   -d '{"token":"eyJhbGciOiJIUzI1NiIs..."}'
+    // Errors:
+    // (INVALID_ARGUMENT): If token format is invalid
+    // (UNAUTHENTICATED): If token is expired or invalid
+    // (INTERNAL): For server-side errors
     rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
 }

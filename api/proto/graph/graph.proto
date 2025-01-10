@@ -6,96 +6,89 @@ option go_package = "github.com/BwezB/Wikno-backend/api/proto/graph";
 
 // SearchRequest represents a search query for finding entities, connection types, or property types.
 message SearchRequest {
-    // Name to search for (case-sensitive exact match)
-    // Maximum length: 255 characters
-    // Required field
-    // Example: "Person" or "worksAt"
+    // [REQUIRED] [MAX LEN 255]
+    // Name to search for (case-sensitive exact match).
+    // Example: "Person" or "Vehicle"
     string name = 1;
 }
 
 // EntitiesList represents a collection of entities matching a search query.
 message EntitiesList {
-    // List of entities matching the search criteria
+    // List of entities matching the search criteria.
     // May be empty if no matches are found
     repeated UsersEntity entities = 1;
 }
 
 // ConnectionTypesList represents a collection of connection types matching a search query.
 message ConnectionTypesList {
-    // List of connection types matching the search criteria
+    // List of connection types matching the search criteria.
     // May be empty if no matches are found
     repeated UsersConnectionType connection_types = 1;
 }
 
 // PropertyTypesList represents a collection of property types matching a search query.
 message PropertyTypesList {
-    // List of property types matching the search criteria
+    // List of property types matching the search criteria.
     // May be empty if no matches are found
     repeated UsersPropertyType property_types = 1;
 }
 
-// UserRequest represents a request to create a new user in the graph service.
+// UserRequest represents a request to create a new user in the graph service. This endpoint can only be used by the auth service.
 message UserRequest {
+    // [REQUIRED]
     // Unique identifier for the user
-    // Format: UUID v4
-    // Required field
     // Example: "123e4567-e89b-12d3-a456-426614174000"
     string id = 1;
 }
 
 // UserData represents all graph data associated with a user.
 message UserData {
-    // List of all entities created or linked by the user
+    // List of all entities created or linked by the user.
     // May be empty for new users
     repeated UsersEntity entities = 1;
 
-    // List of all connection types created or linked by the user
+    // List of all connection types created or linked by the user.
     // May be empty for new users
     repeated UsersConnectionType connection_types = 2;
 
-    // List of all property types created or linked by the user
+    // List of all property types created or linked by the user.
     // May be empty for new users
     repeated UsersPropertyType property_types = 3;
 }
 
 // EntityRequest represents a request to create or update an entity.
 message EntityRequest {
-    // Unique identifier for the entity
-    // Format: UUID v4
-    // Optional for create operations (server will generate)
-    // Required for update operations
+    // [OPTIONAL] [MAX LEN 255] [FORMAT UUID v4] 
+    // Unique identifier for the entity, recieved by the FindEntities endpoint. You cannot create your own ID.
+    // If provided for CREATE operations, server will link the users version of the entity to the shared entity.
+    // Required for UPDATE operations.
     // Example: "123e4567-e89b-12d3-a456-426614174000"
     string id = 1;
 
-    // Name of the entity
-    // Maximum length: 255 characters
-    // Required field
-    // Used for searching and display
-    // Example: "John Doe" or "Company XYZ"
+    // [REQUIRED] [MAX LEN 255]
+    // Name for the users version of this entity.
+    // Can be seen by other users. 
+    // Example: "John Doe" or "Company XYZ".
     string name = 2;
 
-    // Detailed description of the entity
-    // Maximum length: 4096 characters
-    // Required field
-    // Should provide clear, comprehensive information about the entity
+    // [REQUIRED] [MAX LEN 4096]
+    // Description for the users version of this entity.
+    // Should provide clear, comprehensive information about the entity, can be seen by other users. 
     // Example: "Senior Software Engineer with 10 years of experience..."
     string definition = 3;
 }
 
 // UsersEntity represents a user's version of an entity.
 message UsersEntity {
-    // Name given to the entity by this user
-    // Maximum length: 255 characters
+    // This user's name for the entity
     // Example: "John Doe"
     string name = 1;
 
-    // User's definition of the entity
-    // Maximum length: 4096 characters
+    // This user's definition of the entity
     // Example: "Senior Software Engineer in our team..."
     string definition = 2;
 
-    // ID of the user who created/owns this version
-    // Format: UUID v4
+    // ID of the user who created this version of the entity
     string user_id = 3;
 
     // ID of the underlying shared entity
@@ -105,89 +98,84 @@ message UsersEntity {
 
 // ConnectionTypeRequest represents a request to create a connection type.
 message ConnectionTypeRequest {
-    // Unique identifier for the connection type
-    // Format: UUID v4
-    // Optional for create operations (server will generate)
+    // [OPTIONAL] [MAX LEN 255] [FORMAT UUID v4] 
+    // Unique identifier for the connection type, recieved by the FindConnectionTypes endpoint. You cannot create your own ID.
+    // If provided for CREATE operations, server will link the users version of the connection type to the shared connection type.
+    // Required for UPDATE operations.
     // Example: "123e4567-e89b-12d3-a456-426614174000"
     string id = 1;
 
-    // Name of the connection type
-    // Maximum length: 255 characters
-    // Required field
-    // Should be descriptive of the relationship
-    // Example: "worksAt" or "reportedTo"
+    // [REQUIRED] [MAX LEN 255]
+    // Name for the users version of this connection type.
+    // Can be seen by other users.
+    // Example: "Works at" or "Brother"
     string name = 2;
 
-    // Detailed description of what this connection represents
-    // Maximum length: 4096 characters
-    // Required field
-    // Should clearly explain the meaning of the connection
+    // [REQUIRED] [MAX LEN 4096]
+    // Description for the users version of this connection type.
+    // Should provide clear, comprehensive information about the connection type, can be seen by other users.
     // Example: "Represents a current employment relationship between a person and a company"
     string definition = 3;
 }
 
 // UsersConnectionType represents a user's version of a connection type.
 message UsersConnectionType {
-    // Name given to the connection type by this user
-    // Maximum length: 255 characters
+    // This user's name for the connection type
+    // Example: "Works at"
     string name = 1;
 
-    // User's definition of the connection type
-    // Maximum length: 4096 characters
+    // This user's definition of the connection type
+    // Example: "Represents a current employment relationship..."
     string definition = 2;
 
-    // ID of the user who created/owns this version
-    // Format: UUID v4
+    // ID of the user who created this version of the entity
     string user_id = 3;
 
     // ID of the underlying shared connection type
-    // Format: UUID v4
     string connection_type_id = 4;
 }
 
 // PropertyTypeRequest represents a request to create a property type.
 message PropertyTypeRequest {
-    // Unique identifier for the property type
-    // Format: UUID v4
-    // Optional for create operations (server will generate)
+    // [OPTIONAL] [MAX LEN 255] [FORMAT UUID v4]
+    // Unique identifier for the property type, recieved by the FindPropertyTypes endpoint. You cannot create your own ID.
+    // If provided for CREATE operations, server will link the users version of the property type to the shared property type.
+    // Required for UPDATE operations.
     // Example: "123e4567-e89b-12d3-a456-426614174000"
     string id = 1;
 
-    // Name of the property type
-    // Maximum length: 255 characters
-    // Required field
-    // Example: "salary" or "startDate"
+    // [REQUIRED] [MAX LEN 255]
+    // Name for the users version of this property type
+    // Can be seen by other users
+    // Example: "Salary" or "Starts on"
     string name = 2;
 
-    // Detailed description of what this property represents
-    // Maximum length: 4096 characters
-    // Required field
+    // [REQUIRED] [MAX LEN 4096]
+    // Description for the users version of this property type
+    // Should provide clear, comprehensive information about the property type, can be seen by other users
     // Example: "Annual gross salary in USD"
     string definition = 3;
 
     // Data type for this property
-    // Required field
-    // Must be one of: "string", "int", "float", "boolean"
+    // MUST be one of: "string", "int", "float", "boolean"
     // Example: "float" for salary
     string value_type = 4;
 }
 
 // UsersPropertyType represents a user's version of a property type.
 message UsersPropertyType {
-    // Name given to the property type by this user
-    // Maximum length: 255 characters
+    // This user's name for the property type
+    // Example: "Salary"
     string name = 1;
 
-    // User's definition of the property type
-    // Maximum length: 4096 characters
+    // This user's definition of the property type
+    // Example: "Annual gross salary in USD"
     string definition = 2;
 
     // ID of the underlying shared property type
-    // Format: UUID v4
     string property_type_id = 3;
 
-    // ID of the user who created/owns this version
-    // Format: UUID v4
+    // ID of the user who created this version of the entity
     string user_id = 4;
 
     // Data type for this property
@@ -201,118 +189,70 @@ message Empty {}
 // GraphService provides operations for managing graph-based knowledge representation.
 // All operations require authentication via JWT token in the "authorization" metadata.
 service GraphService {
-    // CreateUser initializes a new user in the graph service.
-    // This should only be called by the auth service when a new user registers.
-    // 
-    // Request body: UserRequest
-    // Response: Empty
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If user_id format is invalid
-    // - ALREADY_EXISTS: If user already exists
-    // - INTERNAL: For server-side errors
+    // CreateUser initializes a new user in the graph service. This endpoint is only accessible by the auth service.
+    // Errors:
+    // (INVALID_ARGUMENT): If user_id format is invalid
+    // (ALREADY_EXISTS): If user already exists
+    // (INTERNAL): For server-side errors
     rpc CreateUser(UserRequest) returns (Empty) {}
 
-    // GetUserData retrieves all entities, connection types, and property types
-    // associated with the authenticated user.
-    // 
-    // Request body: Empty
-    // Response: UserData
-    //
-    // Common error codes:
-    // - UNAUTHENTICATED: If authentication is missing or invalid
-    // - INTERNAL: For server-side errors
+    // GetUserData retrieves all entities, connection types, and property types associated with the authenticated user.
+    // Errors:
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     rpc GetUserData(Empty) returns (UserData) {}
 
-    // CreateEntity creates a new entity or links to an existing one.
-    // 
-    // Request body: EntityRequest
-    // Response: UsersEntity
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If name or definition exceed length limits
-    // - UNAUTHENTICATED: If authentication is missing or invalid
-    // - INTERNAL: For server-side errors
-    //
-    // Example request:
-    // {
-    //   "name": "John Doe",
-    //   "definition": "Senior Software Engineer at Company XYZ"
-    // }
+    // CreateEntity creates a new entity or links to an existing one if ID is provided.
+    // Errors:
+    // (INVALID_ARGUMENT): If name or definition exceed length limits
+    // (NOT_FOUND): If entity ID is provided but entity doesn't exist
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     rpc CreateEntity(EntityRequest) returns (UsersEntity) {}
 
     // UpdateEntity modifies an existing entity.
-    // 
-    // Request body: EntityRequest
-    // Response: Empty
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If name or definition exceed length limits
-    // - NOT_FOUND: If entity doesn't exist
-    // - PERMISSION_DENIED: If user doesn't own the entity
-    // - UNAUTHENTICATED: If authentication is missing or invalid
+    // Errors:
+    // (INVALID_ARGUMENT): If name or definition exceed length limits
+    // (NOT_FOUND): If entity doesn't exist
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     rpc UpdateEntity(EntityRequest) returns (Empty) {}
 
     // FindEntities searches for entities by exact name match.
-    // 
-    // Request body: SearchRequest
-    // Response: EntitiesList
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If name is empty or too long
-    // - UNAUTHENTICATED: If authentication is missing or invalid
+    // Errors:
+    // (INVALID_ARGUMENT): If name is empty or too long
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     rpc FindEntities(SearchRequest) returns (EntitiesList) {}
 
     // CreateConnectionType creates a new connection type or links to an existing one.
-    // 
-    // Request body: ConnectionTypeRequest
-    // Response: UsersConnectionType
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If name or definition exceed length limits
-    // - UNAUTHENTICATED: If authentication is missing or invalid
-    //
-    // Example request:
-    // {
-    //   "name": "worksAt",
-    //   "definition": "Indicates current employment relationship"
-    // }
+    // Errors:
+    // (INVALID_ARGUMENT): If name or definition exceed length limits
+    // (NOT_FOUND): If entity ID is provided but entity doesn't exist
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     rpc CreateConnectionType(ConnectionTypeRequest) returns (UsersConnectionType) {}
 
     // FindConnectionTypes searches for connection types by exact name match.
-    // 
-    // Request body: SearchRequest
-    // Response: ConnectionTypesList
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If name is empty or too long
-    // - UNAUTHENTICATED: If authentication is missing or invalid
+    // Errors:
+    // (INVALID_ARGUMENT): If name is empty or too long
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     rpc FindConnectionTypes(SearchRequest) returns (ConnectionTypesList) {}
 
     // CreatePropertyType creates a new property type or links to an existing one.
-    // 
-    // Request body: PropertyTypeRequest
-    // Response: UsersPropertyType
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If name/definition too long or invalid value_type
-    // - UNAUTHENTICATED: If authentication is missing or invalid
-    //
+    // Errors:
+    // (INVALID_ARGUMENT): If name or definition exceed length limits
+    // (NOT_FOUND): If entity ID is provided but entity doesn't exist
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     // Example request:
-    // {
-    //   "name": "salary",
-    //   "definition": "Annual gross salary in USD",
-    //   "value_type": "float"
-    // }
     rpc CreatePropertyType(PropertyTypeRequest) returns (UsersPropertyType) {}
 
     // FindPropertyTypes searches for property types by exact name match.
-    // 
-    // Request body: SearchRequest
-    // Response: PropertyTypesList
-    //
-    // Common error codes:
-    // - INVALID_ARGUMENT: If name is empty or too long
-    // - UNAUTHENTICATED: If authentication is missing or invalid
+    // Errors:
+    // (INVALID_ARGUMENT): If name is empty or too long
+    // (UNAUTHENTICATED): If authentication is missing or invalid
+    // (INTERNAL): For server-side errors
     rpc FindPropertyTypes(SearchRequest) returns (PropertyTypesList) {}
 }

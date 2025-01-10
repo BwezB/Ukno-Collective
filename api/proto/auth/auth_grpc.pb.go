@@ -4,6 +4,8 @@
 // - protoc             v5.29.1
 // source: api/proto/auth/auth.proto
 
+// Package auth provides authentication and authorization services
+
 package auth
 
 import (
@@ -27,9 +29,27 @@ const (
 // AuthServiceClient is the client API for AuthService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// AuthService provides authentication and authorization functionality.
 type AuthServiceClient interface {
+	// Register creates a new user account.
+	// Errors:
+	// (INVALID_ARGUMENT): If email format is invalid or password doesn't meet requirements
+	// (ALREADY_EXISTS): If the email is already registered
+	// (INTERNAL): For server-side errors
 	Register(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	// Login authenticates an existing user.
+	// Errors:
+	// (INVALID_ARGUMENT): If email format is invalid
+	// (NOT_FOUND): If the email is not registered
+	// (UNAUTHENTICATED): If the password is incorrect
+	// (INTERNAL): For server-side errors
 	Login(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	// VerifyToken validates a JWT token and returns associated user information.
+	// Errors:
+	// (INVALID_ARGUMENT): If token format is invalid
+	// (UNAUTHENTICATED): If token is expired or invalid
+	// (INTERNAL): For server-side errors
 	VerifyToken(ctx context.Context, in *VerifyTokenRequest, opts ...grpc.CallOption) (*VerifyTokenResponse, error)
 }
 
@@ -74,9 +94,27 @@ func (c *authServiceClient) VerifyToken(ctx context.Context, in *VerifyTokenRequ
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
+//
+// AuthService provides authentication and authorization functionality.
 type AuthServiceServer interface {
+	// Register creates a new user account.
+	// Errors:
+	// (INVALID_ARGUMENT): If email format is invalid or password doesn't meet requirements
+	// (ALREADY_EXISTS): If the email is already registered
+	// (INTERNAL): For server-side errors
 	Register(context.Context, *AuthRequest) (*AuthResponse, error)
+	// Login authenticates an existing user.
+	// Errors:
+	// (INVALID_ARGUMENT): If email format is invalid
+	// (NOT_FOUND): If the email is not registered
+	// (UNAUTHENTICATED): If the password is incorrect
+	// (INTERNAL): For server-side errors
 	Login(context.Context, *AuthRequest) (*AuthResponse, error)
+	// VerifyToken validates a JWT token and returns associated user information.
+	// Errors:
+	// (INVALID_ARGUMENT): If token format is invalid
+	// (UNAUTHENTICATED): If token is expired or invalid
+	// (INTERNAL): For server-side errors
 	VerifyToken(context.Context, *VerifyTokenRequest) (*VerifyTokenResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }

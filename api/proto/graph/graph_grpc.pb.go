@@ -4,6 +4,8 @@
 // - protoc             v5.29.1
 // source: api/proto/graph/graph.proto
 
+// Package graph provides services for managing graph-based knowledge representation
+
 package graph
 
 import (
@@ -34,20 +36,66 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// GraphService provides operations for managing the graph data
+// GraphService provides operations for managing graph-based knowledge representation.
+// All operations require authentication via JWT token in the "authorization" metadata.
 type GraphServiceClient interface {
-	// Get all user's data
+	// CreateUser initializes a new user in the graph service. This endpoint is only accessible by the auth service.
+	// Errors:
+	// (INVALID_ARGUMENT): If user_id format is invalid
+	// (ALREADY_EXISTS): If user already exists
+	// (INTERNAL): For server-side errors
 	CreateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*Empty, error)
+	// GetUserData retrieves all entities, connection types, and property types associated with the authenticated user.
+	// Errors:
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	GetUserData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*UserData, error)
-	// Entity operations
+	// CreateEntity creates a new entity or links to an existing one if ID is provided.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity ID is provided but entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	CreateEntity(ctx context.Context, in *EntityRequest, opts ...grpc.CallOption) (*UsersEntity, error)
+	// UpdateEntity modifies an existing entity.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	UpdateEntity(ctx context.Context, in *EntityRequest, opts ...grpc.CallOption) (*Empty, error)
+	// FindEntities searches for entities by exact name match.
+	// Errors:
+	// (INVALID_ARGUMENT): If name is empty or too long
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	FindEntities(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*EntitiesList, error)
-	// ConnectionType operations
+	// CreateConnectionType creates a new connection type or links to an existing one.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity ID is provided but entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	CreateConnectionType(ctx context.Context, in *ConnectionTypeRequest, opts ...grpc.CallOption) (*UsersConnectionType, error)
+	// FindConnectionTypes searches for connection types by exact name match.
+	// Errors:
+	// (INVALID_ARGUMENT): If name is empty or too long
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	FindConnectionTypes(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*ConnectionTypesList, error)
-	// PropertyType operations
+	// CreatePropertyType creates a new property type or links to an existing one.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity ID is provided but entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
+	// Example request:
 	CreatePropertyType(ctx context.Context, in *PropertyTypeRequest, opts ...grpc.CallOption) (*UsersPropertyType, error)
+	// FindPropertyTypes searches for property types by exact name match.
+	// Errors:
+	// (INVALID_ARGUMENT): If name is empty or too long
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	FindPropertyTypes(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*PropertyTypesList, error)
 }
 
@@ -153,20 +201,66 @@ func (c *graphServiceClient) FindPropertyTypes(ctx context.Context, in *SearchRe
 // All implementations must embed UnimplementedGraphServiceServer
 // for forward compatibility.
 //
-// GraphService provides operations for managing the graph data
+// GraphService provides operations for managing graph-based knowledge representation.
+// All operations require authentication via JWT token in the "authorization" metadata.
 type GraphServiceServer interface {
-	// Get all user's data
+	// CreateUser initializes a new user in the graph service. This endpoint is only accessible by the auth service.
+	// Errors:
+	// (INVALID_ARGUMENT): If user_id format is invalid
+	// (ALREADY_EXISTS): If user already exists
+	// (INTERNAL): For server-side errors
 	CreateUser(context.Context, *UserRequest) (*Empty, error)
+	// GetUserData retrieves all entities, connection types, and property types associated with the authenticated user.
+	// Errors:
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	GetUserData(context.Context, *Empty) (*UserData, error)
-	// Entity operations
+	// CreateEntity creates a new entity or links to an existing one if ID is provided.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity ID is provided but entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	CreateEntity(context.Context, *EntityRequest) (*UsersEntity, error)
+	// UpdateEntity modifies an existing entity.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	UpdateEntity(context.Context, *EntityRequest) (*Empty, error)
+	// FindEntities searches for entities by exact name match.
+	// Errors:
+	// (INVALID_ARGUMENT): If name is empty or too long
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	FindEntities(context.Context, *SearchRequest) (*EntitiesList, error)
-	// ConnectionType operations
+	// CreateConnectionType creates a new connection type or links to an existing one.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity ID is provided but entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	CreateConnectionType(context.Context, *ConnectionTypeRequest) (*UsersConnectionType, error)
+	// FindConnectionTypes searches for connection types by exact name match.
+	// Errors:
+	// (INVALID_ARGUMENT): If name is empty or too long
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	FindConnectionTypes(context.Context, *SearchRequest) (*ConnectionTypesList, error)
-	// PropertyType operations
+	// CreatePropertyType creates a new property type or links to an existing one.
+	// Errors:
+	// (INVALID_ARGUMENT): If name or definition exceed length limits
+	// (NOT_FOUND): If entity ID is provided but entity doesn't exist
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
+	// Example request:
 	CreatePropertyType(context.Context, *PropertyTypeRequest) (*UsersPropertyType, error)
+	// FindPropertyTypes searches for property types by exact name match.
+	// Errors:
+	// (INVALID_ARGUMENT): If name is empty or too long
+	// (UNAUTHENTICATED): If authentication is missing or invalid
+	// (INTERNAL): For server-side errors
 	FindPropertyTypes(context.Context, *SearchRequest) (*PropertyTypesList, error)
 	mustEmbedUnimplementedGraphServiceServer()
 }

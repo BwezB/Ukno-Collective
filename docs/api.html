@@ -297,9 +297,8 @@
                   <td>email</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Email must be a valid email address format (e.g., &#34;user@example.com&#34;)
-Maximum length: 255 characters
-Required field
+                  <td><p>[REQUIRED] [MAX LEN 255] 
+Email must be a valid email address format (e.g., &#34;user@example.com&#34;).
 Example: &#34;john.doe@company.com&#34; </p></td>
                 </tr>
               
@@ -307,11 +306,8 @@ Example: &#34;john.doe@company.com&#34; </p></td>
                   <td>password</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Password must meet the following criteria:
-- Minimum length: 8 characters
-- Maximum length: 32 characters
-- Required field
-- Not stored in plain text (hashed before storage)
+                  <td><p>[REQUIRED] [MIN LEN 8] [MAX LEN 32]
+Password is hashed on the server before storing.
 Example: &#34;MySecurePass123!&#34; </p></td>
                 </tr>
               
@@ -336,8 +332,8 @@ Example: &#34;MySecurePass123!&#34; </p></td>
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Unique identifier for the user
-Format: UUID v4
+                  <td><p>Unique identifier for the user. 
+Format: UUID v4.
 Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                 </tr>
               
@@ -345,8 +341,8 @@ Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                   <td>email</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Email address associated with the authenticated user
-Same format as in AuthRequest
+                  <td><p>Email address associated with the authenticated user.
+Email must be a valid email address format (e.g., &#34;user@example.com&#34;).
 Example: &#34;john.doe@company.com&#34; </p></td>
                 </tr>
               
@@ -354,10 +350,10 @@ Example: &#34;john.doe@company.com&#34; </p></td>
                   <td>token</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>JWT token for subsequent authenticated requests
-Format: JWT string (header.payload.signature)
-Valid for: 24 hours by default (configurable)
-Must be included in subsequent requests as &#34;authorization&#34; metadata
+                  <td><p>JWT token for subsequent authenticated requests. 
+Format: JWT string (header.payload.signature). 
+Must be included in subsequent requests as &#34;authorization&#34; metadata. 
+Valid for: 24 hours by default.
 Example: &#34;eyJhbGciOiJIUzI1NiIs...&#34; </p></td>
                 </tr>
               
@@ -382,9 +378,9 @@ Example: &#34;eyJhbGciOiJIUzI1NiIs...&#34; </p></td>
                   <td>token</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>JWT token to verify
-Must be a valid JWT token previously issued by the auth service
-Format: JWT string (header.payload.signature)
+                  <td><p>[REQUIRED]
+JWT token to verify. 
+Must be a valid JWT token previously issued by the auth service. 
 Example: &#34;eyJhbGciOiJIUzI1NiIs...&#34; </p></td>
                 </tr>
               
@@ -409,8 +405,8 @@ Example: &#34;eyJhbGciOiJIUzI1NiIs...&#34; </p></td>
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>User ID associated with the token
-Format: UUID v4
+                  <td><p>User ID associated with the token.
+Format: UUID v4.
 Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                 </tr>
               
@@ -418,8 +414,8 @@ Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                   <td>email</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Email address associated with the user
-Format: valid email address
+                  <td><p>Email address associated with the user.
+Format: valid email address.
 Example: &#34;john.doe@company.com&#34; </p></td>
                 </tr>
               
@@ -449,19 +445,10 @@ Example: &#34;john.doe@company.com&#34; </p></td>
                 <td><a href="#auth.AuthRequest">AuthRequest</a></td>
                 <td><a href="#auth.AuthResponse">AuthResponse</a></td>
                 <td><p>Register creates a new user account.
-
-Request body: AuthRequest
-Response: AuthResponse
-
-Common error codes:
-- INVALID_ARGUMENT: If email format is invalid or password doesn&#39;t meet requirements
-- ALREADY_EXISTS: If the email is already registered
-- INTERNAL: For server-side errors
-
-Example curl:
-curl -X POST http://localhost:50051/auth/register \
-  -H &#39;Content-Type: application/json&#39; \
-  -d &#39;{&#34;email&#34;:&#34;john.doe@company.com&#34;,&#34;password&#34;:&#34;MySecurePass123!&#34;}&#39;</p></td>
+Errors:
+(INVALID_ARGUMENT): If email format is invalid or password doesn&#39;t meet requirements
+(ALREADY_EXISTS): If the email is already registered
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
@@ -469,20 +456,11 @@ curl -X POST http://localhost:50051/auth/register \
                 <td><a href="#auth.AuthRequest">AuthRequest</a></td>
                 <td><a href="#auth.AuthResponse">AuthResponse</a></td>
                 <td><p>Login authenticates an existing user.
-
-Request body: AuthRequest
-Response: AuthResponse
-
-Common error codes:
-- INVALID_ARGUMENT: If email format is invalid
-- NOT_FOUND: If the email is not registered
-- UNAUTHENTICATED: If the password is incorrect
-- INTERNAL: For server-side errors
-
-Example curl:
-curl -X POST http://localhost:50051/auth/login \
-  -H &#39;Content-Type: application/json&#39; \
-  -d &#39;{&#34;email&#34;:&#34;john.doe@company.com&#34;,&#34;password&#34;:&#34;MySecurePass123!&#34;}&#39;</p></td>
+Errors:
+(INVALID_ARGUMENT): If email format is invalid
+(NOT_FOUND): If the email is not registered
+(UNAUTHENTICATED): If the password is incorrect
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
@@ -490,19 +468,10 @@ curl -X POST http://localhost:50051/auth/login \
                 <td><a href="#auth.VerifyTokenRequest">VerifyTokenRequest</a></td>
                 <td><a href="#auth.VerifyTokenResponse">VerifyTokenResponse</a></td>
                 <td><p>VerifyToken validates a JWT token and returns associated user information.
-
-Request body: VerifyTokenRequest
-Response: VerifyTokenResponse
-
-Common error codes:
-- INVALID_ARGUMENT: If token format is invalid
-- UNAUTHENTICATED: If token is expired or invalid
-- INTERNAL: For server-side errors
-
-Example curl:
-curl -X POST http://localhost:50051/auth/verify \
-  -H &#39;Content-Type: application/json&#39; \
-  -d &#39;{&#34;token&#34;:&#34;eyJhbGciOiJIUzI1NiIs...&#34;}&#39;</p></td>
+Errors:
+(INVALID_ARGUMENT): If token format is invalid
+(UNAUTHENTICATED): If token is expired or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
           </tbody>
@@ -531,9 +500,10 @@ curl -X POST http://localhost:50051/auth/verify \
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Unique identifier for the connection type
-Format: UUID v4
-Optional for create operations (server will generate)
+                  <td><p>[OPTIONAL] [MAX LEN 255] [FORMAT UUID v4] 
+Unique identifier for the connection type, recieved by the FindConnectionTypes endpoint. You cannot create your own ID.
+If provided for CREATE operations, server will link the users version of the connection type to the shared connection type.
+Required for UPDATE operations.
 Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                 </tr>
               
@@ -541,21 +511,19 @@ Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Name of the connection type
-Maximum length: 255 characters
-Required field
-Should be descriptive of the relationship
-Example: &#34;worksAt&#34; or &#34;reportedTo&#34; </p></td>
+                  <td><p>[REQUIRED] [MAX LEN 255]
+Name for the users version of this connection type.
+Can be seen by other users.
+Example: &#34;Works at&#34; or &#34;Brother&#34; </p></td>
                 </tr>
               
                 <tr>
                   <td>definition</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Detailed description of what this connection represents
-Maximum length: 4096 characters
-Required field
-Should clearly explain the meaning of the connection
+                  <td><p>[REQUIRED] [MAX LEN 4096]
+Description for the users version of this connection type.
+Should provide clear, comprehensive information about the connection type, can be seen by other users.
 Example: &#34;Represents a current employment relationship between a person and a company&#34; </p></td>
                 </tr>
               
@@ -580,7 +548,7 @@ Example: &#34;Represents a current employment relationship between a person and 
                   <td>connection_types</td>
                   <td><a href="#graph.UsersConnectionType">UsersConnectionType</a></td>
                   <td>repeated</td>
-                  <td><p>List of connection types matching the search criteria
+                  <td><p>List of connection types matching the search criteria.
 May be empty if no matches are found </p></td>
                 </tr>
               
@@ -612,7 +580,7 @@ May be empty if no matches are found </p></td>
                   <td>entities</td>
                   <td><a href="#graph.UsersEntity">UsersEntity</a></td>
                   <td>repeated</td>
-                  <td><p>List of entities matching the search criteria
+                  <td><p>List of entities matching the search criteria.
 May be empty if no matches are found </p></td>
                 </tr>
               
@@ -637,10 +605,10 @@ May be empty if no matches are found </p></td>
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Unique identifier for the entity
-Format: UUID v4
-Optional for create operations (server will generate)
-Required for update operations
+                  <td><p>[OPTIONAL] [MAX LEN 255] [FORMAT UUID v4] 
+Unique identifier for the entity, recieved by the FindEntities endpoint. You cannot create your own ID.
+If provided for CREATE operations, server will link the users version of the entity to the shared entity.
+Required for UPDATE operations.
 Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                 </tr>
               
@@ -648,21 +616,19 @@ Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Name of the entity
-Maximum length: 255 characters
-Required field
-Used for searching and display
-Example: &#34;John Doe&#34; or &#34;Company XYZ&#34; </p></td>
+                  <td><p>[REQUIRED] [MAX LEN 255]
+Name for the users version of this entity.
+Can be seen by other users. 
+Example: &#34;John Doe&#34; or &#34;Company XYZ&#34;. </p></td>
                 </tr>
               
                 <tr>
                   <td>definition</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Detailed description of the entity
-Maximum length: 4096 characters
-Required field
-Should provide clear, comprehensive information about the entity
+                  <td><p>[REQUIRED] [MAX LEN 4096]
+Description for the users version of this entity.
+Should provide clear, comprehensive information about the entity, can be seen by other users. 
 Example: &#34;Senior Software Engineer with 10 years of experience...&#34; </p></td>
                 </tr>
               
@@ -687,9 +653,10 @@ Example: &#34;Senior Software Engineer with 10 years of experience...&#34; </p><
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Unique identifier for the property type
-Format: UUID v4
-Optional for create operations (server will generate)
+                  <td><p>[OPTIONAL] [MAX LEN 255] [FORMAT UUID v4]
+Unique identifier for the property type, recieved by the FindPropertyTypes endpoint. You cannot create your own ID.
+If provided for CREATE operations, server will link the users version of the property type to the shared property type.
+Required for UPDATE operations.
 Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                 </tr>
               
@@ -697,19 +664,19 @@ Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Name of the property type
-Maximum length: 255 characters
-Required field
-Example: &#34;salary&#34; or &#34;startDate&#34; </p></td>
+                  <td><p>[REQUIRED] [MAX LEN 255]
+Name for the users version of this property type
+Can be seen by other users
+Example: &#34;Salary&#34; or &#34;Starts on&#34; </p></td>
                 </tr>
               
                 <tr>
                   <td>definition</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Detailed description of what this property represents
-Maximum length: 4096 characters
-Required field
+                  <td><p>[REQUIRED] [MAX LEN 4096]
+Description for the users version of this property type
+Should provide clear, comprehensive information about the property type, can be seen by other users
 Example: &#34;Annual gross salary in USD&#34; </p></td>
                 </tr>
               
@@ -718,8 +685,7 @@ Example: &#34;Annual gross salary in USD&#34; </p></td>
                   <td><a href="#string">string</a></td>
                   <td></td>
                   <td><p>Data type for this property
-Required field
-Must be one of: &#34;string&#34;, &#34;int&#34;, &#34;float&#34;, &#34;boolean&#34;
+MUST be one of: &#34;string&#34;, &#34;int&#34;, &#34;float&#34;, &#34;boolean&#34;
 Example: &#34;float&#34; for salary </p></td>
                 </tr>
               
@@ -744,7 +710,7 @@ Example: &#34;float&#34; for salary </p></td>
                   <td>property_types</td>
                   <td><a href="#graph.UsersPropertyType">UsersPropertyType</a></td>
                   <td>repeated</td>
-                  <td><p>List of property types matching the search criteria
+                  <td><p>List of property types matching the search criteria.
 May be empty if no matches are found </p></td>
                 </tr>
               
@@ -769,10 +735,9 @@ May be empty if no matches are found </p></td>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Name to search for (case-sensitive exact match)
-Maximum length: 255 characters
-Required field
-Example: &#34;Person&#34; or &#34;worksAt&#34; </p></td>
+                  <td><p>[REQUIRED] [MAX LEN 255]
+Name to search for (case-sensitive exact match).
+Example: &#34;Person&#34; or &#34;Vehicle&#34; </p></td>
                 </tr>
               
             </tbody>
@@ -796,7 +761,7 @@ Example: &#34;Person&#34; or &#34;worksAt&#34; </p></td>
                   <td>entities</td>
                   <td><a href="#graph.UsersEntity">UsersEntity</a></td>
                   <td>repeated</td>
-                  <td><p>List of all entities created or linked by the user
+                  <td><p>List of all entities created or linked by the user.
 May be empty for new users </p></td>
                 </tr>
               
@@ -804,7 +769,7 @@ May be empty for new users </p></td>
                   <td>connection_types</td>
                   <td><a href="#graph.UsersConnectionType">UsersConnectionType</a></td>
                   <td>repeated</td>
-                  <td><p>List of all connection types created or linked by the user
+                  <td><p>List of all connection types created or linked by the user.
 May be empty for new users </p></td>
                 </tr>
               
@@ -812,7 +777,7 @@ May be empty for new users </p></td>
                   <td>property_types</td>
                   <td><a href="#graph.UsersPropertyType">UsersPropertyType</a></td>
                   <td>repeated</td>
-                  <td><p>List of all property types created or linked by the user
+                  <td><p>List of all property types created or linked by the user.
 May be empty for new users </p></td>
                 </tr>
               
@@ -824,7 +789,7 @@ May be empty for new users </p></td>
         
       
         <h3 id="graph.UserRequest">UserRequest</h3>
-        <p>UserRequest represents a request to create a new user in the graph service.</p>
+        <p>UserRequest represents a request to create a new user in the graph service. This endpoint can only be used by the auth service.</p>
 
         
           <table class="field-table">
@@ -837,9 +802,8 @@ May be empty for new users </p></td>
                   <td>id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Unique identifier for the user
-Format: UUID v4
-Required field
+                  <td><p>[REQUIRED]
+Unique identifier for the user
 Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                 </tr>
               
@@ -864,32 +828,30 @@ Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Name given to the connection type by this user
-Maximum length: 255 characters </p></td>
+                  <td><p>This user&#39;s name for the connection type
+Example: &#34;Works at&#34; </p></td>
                 </tr>
               
                 <tr>
                   <td>definition</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>User&#39;s definition of the connection type
-Maximum length: 4096 characters </p></td>
+                  <td><p>This user&#39;s definition of the connection type
+Example: &#34;Represents a current employment relationship...&#34; </p></td>
                 </tr>
               
                 <tr>
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>ID of the user who created/owns this version
-Format: UUID v4 </p></td>
+                  <td><p>ID of the user who created this version of the entity </p></td>
                 </tr>
               
                 <tr>
                   <td>connection_type_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>ID of the underlying shared connection type
-Format: UUID v4 </p></td>
+                  <td><p>ID of the underlying shared connection type </p></td>
                 </tr>
               
             </tbody>
@@ -913,8 +875,7 @@ Format: UUID v4 </p></td>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Name given to the entity by this user
-Maximum length: 255 characters
+                  <td><p>This user&#39;s name for the entity
 Example: &#34;John Doe&#34; </p></td>
                 </tr>
               
@@ -922,8 +883,7 @@ Example: &#34;John Doe&#34; </p></td>
                   <td>definition</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>User&#39;s definition of the entity
-Maximum length: 4096 characters
+                  <td><p>This user&#39;s definition of the entity
 Example: &#34;Senior Software Engineer in our team...&#34; </p></td>
                 </tr>
               
@@ -931,8 +891,7 @@ Example: &#34;Senior Software Engineer in our team...&#34; </p></td>
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>ID of the user who created/owns this version
-Format: UUID v4 </p></td>
+                  <td><p>ID of the user who created this version of the entity </p></td>
                 </tr>
               
                 <tr>
@@ -964,32 +923,30 @@ Format: UUID v4 </p></td>
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>Name given to the property type by this user
-Maximum length: 255 characters </p></td>
+                  <td><p>This user&#39;s name for the property type
+Example: &#34;Salary&#34; </p></td>
                 </tr>
               
                 <tr>
                   <td>definition</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>User&#39;s definition of the property type
-Maximum length: 4096 characters </p></td>
+                  <td><p>This user&#39;s definition of the property type
+Example: &#34;Annual gross salary in USD&#34; </p></td>
                 </tr>
               
                 <tr>
                   <td>property_type_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>ID of the underlying shared property type
-Format: UUID v4 </p></td>
+                  <td><p>ID of the underlying shared property type </p></td>
                 </tr>
               
                 <tr>
                   <td>user_id</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>ID of the user who created/owns this version
-Format: UUID v4 </p></td>
+                  <td><p>ID of the user who created this version of the entity </p></td>
                 </tr>
               
                 <tr>
@@ -1025,52 +982,33 @@ One of: &#34;string&#34;, &#34;int&#34;, &#34;float&#34;, &#34;boolean&#34; </p>
                 <td>CreateUser</td>
                 <td><a href="#graph.UserRequest">UserRequest</a></td>
                 <td><a href="#graph.Empty">Empty</a></td>
-                <td><p>CreateUser initializes a new user in the graph service.
-This should only be called by the auth service when a new user registers.
-
-Request body: UserRequest
-Response: Empty
-
-Common error codes:
-- INVALID_ARGUMENT: If user_id format is invalid
-- ALREADY_EXISTS: If user already exists
-- INTERNAL: For server-side errors</p></td>
+                <td><p>CreateUser initializes a new user in the graph service. This endpoint is only accessible by the auth service.
+Errors:
+(INVALID_ARGUMENT): If user_id format is invalid
+(ALREADY_EXISTS): If user already exists
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
                 <td>GetUserData</td>
                 <td><a href="#graph.Empty">Empty</a></td>
                 <td><a href="#graph.UserData">UserData</a></td>
-                <td><p>GetUserData retrieves all entities, connection types, and property types
-associated with the authenticated user.
-
-Request body: Empty
-Response: UserData
-
-Common error codes:
-- UNAUTHENTICATED: If authentication is missing or invalid
-- INTERNAL: For server-side errors</p></td>
+                <td><p>GetUserData retrieves all entities, connection types, and property types associated with the authenticated user.
+Errors:
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
                 <td>CreateEntity</td>
                 <td><a href="#graph.EntityRequest">EntityRequest</a></td>
                 <td><a href="#graph.UsersEntity">UsersEntity</a></td>
-                <td><p>CreateEntity creates a new entity or links to an existing one.
-
-Request body: EntityRequest
-Response: UsersEntity
-
-Common error codes:
-- INVALID_ARGUMENT: If name or definition exceed length limits
-- UNAUTHENTICATED: If authentication is missing or invalid
-- INTERNAL: For server-side errors
-
-Example request:
-{
-  &#34;name&#34;: &#34;John Doe&#34;,
-  &#34;definition&#34;: &#34;Senior Software Engineer at Company XYZ&#34;
-}</p></td>
+                <td><p>CreateEntity creates a new entity or links to an existing one if ID is provided.
+Errors:
+(INVALID_ARGUMENT): If name or definition exceed length limits
+(NOT_FOUND): If entity ID is provided but entity doesn&#39;t exist
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
@@ -1078,15 +1016,11 @@ Example request:
                 <td><a href="#graph.EntityRequest">EntityRequest</a></td>
                 <td><a href="#graph.Empty">Empty</a></td>
                 <td><p>UpdateEntity modifies an existing entity.
-
-Request body: EntityRequest
-Response: Empty
-
-Common error codes:
-- INVALID_ARGUMENT: If name or definition exceed length limits
-- NOT_FOUND: If entity doesn&#39;t exist
-- PERMISSION_DENIED: If user doesn&#39;t own the entity
-- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+Errors:
+(INVALID_ARGUMENT): If name or definition exceed length limits
+(NOT_FOUND): If entity doesn&#39;t exist
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
@@ -1094,13 +1028,10 @@ Common error codes:
                 <td><a href="#graph.SearchRequest">SearchRequest</a></td>
                 <td><a href="#graph.EntitiesList">EntitiesList</a></td>
                 <td><p>FindEntities searches for entities by exact name match.
-
-Request body: SearchRequest
-Response: EntitiesList
-
-Common error codes:
-- INVALID_ARGUMENT: If name is empty or too long
-- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+Errors:
+(INVALID_ARGUMENT): If name is empty or too long
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
@@ -1108,19 +1039,11 @@ Common error codes:
                 <td><a href="#graph.ConnectionTypeRequest">ConnectionTypeRequest</a></td>
                 <td><a href="#graph.UsersConnectionType">UsersConnectionType</a></td>
                 <td><p>CreateConnectionType creates a new connection type or links to an existing one.
-
-Request body: ConnectionTypeRequest
-Response: UsersConnectionType
-
-Common error codes:
-- INVALID_ARGUMENT: If name or definition exceed length limits
-- UNAUTHENTICATED: If authentication is missing or invalid
-
-Example request:
-{
-  &#34;name&#34;: &#34;worksAt&#34;,
-  &#34;definition&#34;: &#34;Indicates current employment relationship&#34;
-}</p></td>
+Errors:
+(INVALID_ARGUMENT): If name or definition exceed length limits
+(NOT_FOUND): If entity ID is provided but entity doesn&#39;t exist
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
@@ -1128,13 +1051,10 @@ Example request:
                 <td><a href="#graph.SearchRequest">SearchRequest</a></td>
                 <td><a href="#graph.ConnectionTypesList">ConnectionTypesList</a></td>
                 <td><p>FindConnectionTypes searches for connection types by exact name match.
-
-Request body: SearchRequest
-Response: ConnectionTypesList
-
-Common error codes:
-- INVALID_ARGUMENT: If name is empty or too long
-- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+Errors:
+(INVALID_ARGUMENT): If name is empty or too long
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
               <tr>
@@ -1142,20 +1062,12 @@ Common error codes:
                 <td><a href="#graph.PropertyTypeRequest">PropertyTypeRequest</a></td>
                 <td><a href="#graph.UsersPropertyType">UsersPropertyType</a></td>
                 <td><p>CreatePropertyType creates a new property type or links to an existing one.
-
-Request body: PropertyTypeRequest
-Response: UsersPropertyType
-
-Common error codes:
-- INVALID_ARGUMENT: If name/definition too long or invalid value_type
-- UNAUTHENTICATED: If authentication is missing or invalid
-
-Example request:
-{
-  &#34;name&#34;: &#34;salary&#34;,
-  &#34;definition&#34;: &#34;Annual gross salary in USD&#34;,
-  &#34;value_type&#34;: &#34;float&#34;
-}</p></td>
+Errors:
+(INVALID_ARGUMENT): If name or definition exceed length limits
+(NOT_FOUND): If entity ID is provided but entity doesn&#39;t exist
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors
+Example request:</p></td>
               </tr>
             
               <tr>
@@ -1163,13 +1075,10 @@ Example request:
                 <td><a href="#graph.SearchRequest">SearchRequest</a></td>
                 <td><a href="#graph.PropertyTypesList">PropertyTypesList</a></td>
                 <td><p>FindPropertyTypes searches for property types by exact name match.
-
-Request body: SearchRequest
-Response: PropertyTypesList
-
-Common error codes:
-- INVALID_ARGUMENT: If name is empty or too long
-- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+Errors:
+(INVALID_ARGUMENT): If name is empty or too long
+(UNAUTHENTICATED): If authentication is missing or invalid
+(INTERNAL): For server-side errors</p></td>
               </tr>
             
           </tbody>

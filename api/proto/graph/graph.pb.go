@@ -4,6 +4,8 @@
 // 	protoc        v5.29.1
 // source: api/proto/graph/graph.proto
 
+// Package graph provides services for managing graph-based knowledge representation
+
 package graph
 
 import (
@@ -20,12 +22,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Serch related messages
+// SearchRequest represents a search query for finding entities, connection types, or property types.
 type SearchRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// [REQUIRED] [MAX LEN 255]
+	// Name to search for (case-sensitive exact match).
+	// Example: "Person" or "Vehicle"
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 }
 
@@ -66,11 +71,14 @@ func (x *SearchRequest) GetName() string {
 	return ""
 }
 
+// EntitiesList represents a collection of entities matching a search query.
 type EntitiesList struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// List of entities matching the search criteria.
+	// May be empty if no matches are found
 	Entities []*UsersEntity `protobuf:"bytes,1,rep,name=entities,proto3" json:"entities,omitempty"`
 }
 
@@ -111,11 +119,14 @@ func (x *EntitiesList) GetEntities() []*UsersEntity {
 	return nil
 }
 
+// ConnectionTypesList represents a collection of connection types matching a search query.
 type ConnectionTypesList struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// List of connection types matching the search criteria.
+	// May be empty if no matches are found
 	ConnectionTypes []*UsersConnectionType `protobuf:"bytes,1,rep,name=connection_types,json=connectionTypes,proto3" json:"connection_types,omitempty"`
 }
 
@@ -156,11 +167,14 @@ func (x *ConnectionTypesList) GetConnectionTypes() []*UsersConnectionType {
 	return nil
 }
 
+// PropertyTypesList represents a collection of property types matching a search query.
 type PropertyTypesList struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// List of property types matching the search criteria.
+	// May be empty if no matches are found
 	PropertyTypes []*UsersPropertyType `protobuf:"bytes,1,rep,name=property_types,json=propertyTypes,proto3" json:"property_types,omitempty"`
 }
 
@@ -201,12 +215,15 @@ func (x *PropertyTypesList) GetPropertyTypes() []*UsersPropertyType {
 	return nil
 }
 
-// Users
+// UserRequest represents a request to create a new user in the graph service. This endpoint can only be used by the auth service.
 type UserRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// [REQUIRED]
+	// Unique identifier for the user
+	// Example: "123e4567-e89b-12d3-a456-426614174000"
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
@@ -247,14 +264,21 @@ func (x *UserRequest) GetId() string {
 	return ""
 }
 
+// UserData represents all graph data associated with a user.
 type UserData struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Entities        []*UsersEntity         `protobuf:"bytes,1,rep,name=entities,proto3" json:"entities,omitempty"`
+	// List of all entities created or linked by the user.
+	// May be empty for new users
+	Entities []*UsersEntity `protobuf:"bytes,1,rep,name=entities,proto3" json:"entities,omitempty"`
+	// List of all connection types created or linked by the user.
+	// May be empty for new users
 	ConnectionTypes []*UsersConnectionType `protobuf:"bytes,2,rep,name=connection_types,json=connectionTypes,proto3" json:"connection_types,omitempty"`
-	PropertyTypes   []*UsersPropertyType   `protobuf:"bytes,3,rep,name=property_types,json=propertyTypes,proto3" json:"property_types,omitempty"`
+	// List of all property types created or linked by the user.
+	// May be empty for new users
+	PropertyTypes []*UsersPropertyType `protobuf:"bytes,3,rep,name=property_types,json=propertyTypes,proto3" json:"property_types,omitempty"`
 }
 
 func (x *UserData) Reset() {
@@ -308,14 +332,27 @@ func (x *UserData) GetPropertyTypes() []*UsersPropertyType {
 	return nil
 }
 
-// Entity related messages
+// EntityRequest represents a request to create or update an entity.
 type EntityRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id         string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // Optional for create, required for update
-	Name       string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// [OPTIONAL] [MAX LEN 255] [FORMAT UUID v4]
+	// Unique identifier for the entity, recieved by the FindEntities endpoint. You cannot create your own ID.
+	// If provided for CREATE operations, server will link the users version of the entity to the shared entity.
+	// Required for UPDATE operations.
+	// Example: "123e4567-e89b-12d3-a456-426614174000"
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// [REQUIRED] [MAX LEN 255]
+	// Name for the users version of this entity.
+	// Can be seen by other users.
+	// Example: "John Doe" or "Company XYZ".
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// [REQUIRED] [MAX LEN 4096]
+	// Description for the users version of this entity.
+	// Should provide clear, comprehensive information about the entity, can be seen by other users.
+	// Example: "Senior Software Engineer with 10 years of experience..."
 	Definition string `protobuf:"bytes,3,opt,name=definition,proto3" json:"definition,omitempty"`
 }
 
@@ -370,15 +407,23 @@ func (x *EntityRequest) GetDefinition() string {
 	return ""
 }
 
+// UsersEntity represents a user's version of an entity.
 type UsersEntity struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name       string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// This user's name for the entity
+	// Example: "John Doe"
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// This user's definition of the entity
+	// Example: "Senior Software Engineer in our team..."
 	Definition string `protobuf:"bytes,2,opt,name=definition,proto3" json:"definition,omitempty"`
-	UserId     string `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	EntityId   string `protobuf:"bytes,4,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	// ID of the user who created this version of the entity
+	UserId string `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// ID of the underlying shared entity
+	// Format: UUID v4
+	EntityId string `protobuf:"bytes,4,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 }
 
 func (x *UsersEntity) Reset() {
@@ -439,14 +484,27 @@ func (x *UsersEntity) GetEntityId() string {
 	return ""
 }
 
-// ConnectionType related messages
+// ConnectionTypeRequest represents a request to create a connection type.
 type ConnectionTypeRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id         string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // Optional for create
-	Name       string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// [OPTIONAL] [MAX LEN 255] [FORMAT UUID v4]
+	// Unique identifier for the connection type, recieved by the FindConnectionTypes endpoint. You cannot create your own ID.
+	// If provided for CREATE operations, server will link the users version of the connection type to the shared connection type.
+	// Required for UPDATE operations.
+	// Example: "123e4567-e89b-12d3-a456-426614174000"
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// [REQUIRED] [MAX LEN 255]
+	// Name for the users version of this connection type.
+	// Can be seen by other users.
+	// Example: "Works at" or "Brother"
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// [REQUIRED] [MAX LEN 4096]
+	// Description for the users version of this connection type.
+	// Should provide clear, comprehensive information about the connection type, can be seen by other users.
+	// Example: "Represents a current employment relationship between a person and a company"
 	Definition string `protobuf:"bytes,3,opt,name=definition,proto3" json:"definition,omitempty"`
 }
 
@@ -501,14 +559,21 @@ func (x *ConnectionTypeRequest) GetDefinition() string {
 	return ""
 }
 
+// UsersConnectionType represents a user's version of a connection type.
 type UsersConnectionType struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name             string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Definition       string `protobuf:"bytes,2,opt,name=definition,proto3" json:"definition,omitempty"`
-	UserId           string `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// This user's name for the connection type
+	// Example: "Works at"
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// This user's definition of the connection type
+	// Example: "Represents a current employment relationship..."
+	Definition string `protobuf:"bytes,2,opt,name=definition,proto3" json:"definition,omitempty"`
+	// ID of the user who created this version of the entity
+	UserId string `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// ID of the underlying shared connection type
 	ConnectionTypeId string `protobuf:"bytes,4,opt,name=connection_type_id,json=connectionTypeId,proto3" json:"connection_type_id,omitempty"`
 }
 
@@ -570,16 +635,32 @@ func (x *UsersConnectionType) GetConnectionTypeId() string {
 	return ""
 }
 
-// PropertyType related messages
+// PropertyTypeRequest represents a request to create a property type.
 type PropertyTypeRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id         string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // Optional for create
-	Name       string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// [OPTIONAL] [MAX LEN 255] [FORMAT UUID v4]
+	// Unique identifier for the property type, recieved by the FindPropertyTypes endpoint. You cannot create your own ID.
+	// If provided for CREATE operations, server will link the users version of the property type to the shared property type.
+	// Required for UPDATE operations.
+	// Example: "123e4567-e89b-12d3-a456-426614174000"
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// [REQUIRED] [MAX LEN 255]
+	// Name for the users version of this property type
+	// Can be seen by other users
+	// Example: "Salary" or "Starts on"
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// [REQUIRED] [MAX LEN 4096]
+	// Description for the users version of this property type
+	// Should provide clear, comprehensive information about the property type, can be seen by other users
+	// Example: "Annual gross salary in USD"
 	Definition string `protobuf:"bytes,3,opt,name=definition,proto3" json:"definition,omitempty"`
-	ValueType  string `protobuf:"bytes,4,opt,name=value_type,json=valueType,proto3" json:"value_type,omitempty"`
+	// Data type for this property
+	// MUST be one of: "string", "int", "float", "boolean"
+	// Example: "float" for salary
+	ValueType string `protobuf:"bytes,4,opt,name=value_type,json=valueType,proto3" json:"value_type,omitempty"`
 }
 
 func (x *PropertyTypeRequest) Reset() {
@@ -640,16 +721,25 @@ func (x *PropertyTypeRequest) GetValueType() string {
 	return ""
 }
 
+// UsersPropertyType represents a user's version of a property type.
 type UsersPropertyType struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name           string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Definition     string `protobuf:"bytes,2,opt,name=definition,proto3" json:"definition,omitempty"`
+	// This user's name for the property type
+	// Example: "Salary"
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// This user's definition of the property type
+	// Example: "Annual gross salary in USD"
+	Definition string `protobuf:"bytes,2,opt,name=definition,proto3" json:"definition,omitempty"`
+	// ID of the underlying shared property type
 	PropertyTypeId string `protobuf:"bytes,3,opt,name=property_type_id,json=propertyTypeId,proto3" json:"property_type_id,omitempty"`
-	UserId         string `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ValueType      string `protobuf:"bytes,5,opt,name=value_type,json=valueType,proto3" json:"value_type,omitempty"`
+	// ID of the user who created this version of the entity
+	UserId string `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// Data type for this property
+	// One of: "string", "int", "float", "boolean"
+	ValueType string `protobuf:"bytes,5,opt,name=value_type,json=valueType,proto3" json:"value_type,omitempty"`
 }
 
 func (x *UsersPropertyType) Reset() {
