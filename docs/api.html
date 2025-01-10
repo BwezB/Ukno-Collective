@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Protocol Documentation</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic"/>
+    <style>
+      body {
+        width: 60em;
+        margin: 1em auto;
+        color: #222;
+        font-family: "Ubuntu", sans-serif;
+        padding-bottom: 4em;
+      }
+
+      h1 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      h2 {
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+        margin: 1.5em 0;
+      }
+
+      h3 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      a {
+        text-decoration: none;
+        color: #567e25;
+      }
+
+      table {
+        width: 100%;
+        font-size: 80%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        font-weight: 700;
+        background-color: #dcdcdc;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #fbfbfb;
+      }
+
+      td {
+        border: 1px solid #ccc;
+        padding: 0.5ex 2ex;
+      }
+
+      td p {
+        text-indent: 1em;
+        margin: 0;
+      }
+
+      td p:nth-child(1) {
+        text-indent: 0;  
+      }
+
+       
+      .field-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(3) {  
+        width: 6em;
+      }
+      .field-table td:nth-child(4) {  
+        width: auto;
+      }
+
+       
+      .extension-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(3) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(4) {  
+        width: 5em;
+      }
+      .extension-table td:nth-child(5) {  
+        width: auto;
+      }
+
+       
+      .enum-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(3) {  
+        width: auto;
+      }
+
+       
+      .scalar-value-types-table tr {
+        height: 3em;
+      }
+
+       
+      #toc-container ul {
+        list-style-type: none;
+        padding-left: 1em;
+        line-height: 180%;
+        margin: 0;
+      }
+      #toc > li > a {
+        font-weight: bold;
+      }
+
+       
+      .file-heading {
+        width: 100%;
+        display: table;
+        border-bottom: 1px solid #aaa;
+        margin: 4em 0 1.5em 0;
+      }
+      .file-heading h2 {
+        border: none;
+        display: table-cell;
+      }
+      .file-heading a {
+        text-align: right;
+        display: table-cell;
+      }
+
+       
+      .badge {
+        width: 1.6em;
+        height: 1.6em;
+        display: inline-block;
+
+        line-height: 1.6em;
+        text-align: center;
+        font-weight: bold;
+        font-size: 60%;
+
+        color: #89ba48;
+        background-color: #dff0c8;
+
+        margin: 0.5ex 1em 0.5ex -1em;
+        border: 1px solid #fbfbfb;
+        border-radius: 1ex;
+      }
+    </style>
+
+    
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+  </head>
+
+  <body>
+
+    <h1 id="title">Protocol Documentation</h1>
+
+    <h2>Table of Contents</h2>
+
+    <div id="toc-container">
+      <ul id="toc">
+        
+          
+          <li>
+            <a href="#api%2fproto%2fauth%2fauth.proto">api/proto/auth/auth.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#auth.AuthRequest"><span class="badge">M</span>AuthRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#auth.AuthResponse"><span class="badge">M</span>AuthResponse</a>
+                </li>
+              
+                <li>
+                  <a href="#auth.VerifyTokenRequest"><span class="badge">M</span>VerifyTokenRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#auth.VerifyTokenResponse"><span class="badge">M</span>VerifyTokenResponse</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#auth.AuthService"><span class="badge">S</span>AuthService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+          
+          <li>
+            <a href="#api%2fproto%2fgraph%2fgraph.proto">api/proto/graph/graph.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#graph.ConnectionTypeRequest"><span class="badge">M</span>ConnectionTypeRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.ConnectionTypesList"><span class="badge">M</span>ConnectionTypesList</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.Empty"><span class="badge">M</span>Empty</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.EntitiesList"><span class="badge">M</span>EntitiesList</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.EntityRequest"><span class="badge">M</span>EntityRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.PropertyTypeRequest"><span class="badge">M</span>PropertyTypeRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.PropertyTypesList"><span class="badge">M</span>PropertyTypesList</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.SearchRequest"><span class="badge">M</span>SearchRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.UserData"><span class="badge">M</span>UserData</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.UserRequest"><span class="badge">M</span>UserRequest</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.UsersConnectionType"><span class="badge">M</span>UsersConnectionType</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.UsersEntity"><span class="badge">M</span>UsersEntity</a>
+                </li>
+              
+                <li>
+                  <a href="#graph.UsersPropertyType"><span class="badge">M</span>UsersPropertyType</a>
+                </li>
+              
+              
+              
+              
+                <li>
+                  <a href="#graph.GraphService"><span class="badge">S</span>GraphService</a>
+                </li>
+              
+            </ul>
+          </li>
+        
+        <li><a href="#scalar-value-types">Scalar Value Types</a></li>
+      </ul>
+    </div>
+
+    
+      
+      <div class="file-heading">
+        <h2 id="api/proto/auth/auth.proto">api/proto/auth/auth.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="auth.AuthRequest">AuthRequest</h3>
+        <p>AuthRequest represents the authentication request for both registration and login.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>email</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Email must be a valid email address format (e.g., &#34;user@example.com&#34;)
+Maximum length: 255 characters
+Required field
+Example: &#34;john.doe@company.com&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>password</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Password must meet the following criteria:
+- Minimum length: 8 characters
+- Maximum length: 32 characters
+- Required field
+- Not stored in plain text (hashed before storage)
+Example: &#34;MySecurePass123!&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="auth.AuthResponse">AuthResponse</h3>
+        <p>AuthResponse represents the server's response to successful authentication.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Unique identifier for the user
+Format: UUID v4
+Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>email</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Email address associated with the authenticated user
+Same format as in AuthRequest
+Example: &#34;john.doe@company.com&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>JWT token for subsequent authenticated requests
+Format: JWT string (header.payload.signature)
+Valid for: 24 hours by default (configurable)
+Must be included in subsequent requests as &#34;authorization&#34; metadata
+Example: &#34;eyJhbGciOiJIUzI1NiIs...&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="auth.VerifyTokenRequest">VerifyTokenRequest</h3>
+        <p>VerifyTokenRequest represents a token verification request.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>token</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>JWT token to verify
+Must be a valid JWT token previously issued by the auth service
+Format: JWT string (header.payload.signature)
+Example: &#34;eyJhbGciOiJIUzI1NiIs...&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="auth.VerifyTokenResponse">VerifyTokenResponse</h3>
+        <p>VerifyTokenResponse contains user information if token is valid.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>User ID associated with the token
+Format: UUID v4
+Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>email</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Email address associated with the user
+Format: valid email address
+Example: &#34;john.doe@company.com&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="auth.AuthService">AuthService</h3>
+        <p>AuthService provides authentication and authorization functionality.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>Register</td>
+                <td><a href="#auth.AuthRequest">AuthRequest</a></td>
+                <td><a href="#auth.AuthResponse">AuthResponse</a></td>
+                <td><p>Register creates a new user account.
+
+Request body: AuthRequest
+Response: AuthResponse
+
+Common error codes:
+- INVALID_ARGUMENT: If email format is invalid or password doesn&#39;t meet requirements
+- ALREADY_EXISTS: If the email is already registered
+- INTERNAL: For server-side errors
+
+Example curl:
+curl -X POST http://localhost:50051/auth/register \
+  -H &#39;Content-Type: application/json&#39; \
+  -d &#39;{&#34;email&#34;:&#34;john.doe@company.com&#34;,&#34;password&#34;:&#34;MySecurePass123!&#34;}&#39;</p></td>
+              </tr>
+            
+              <tr>
+                <td>Login</td>
+                <td><a href="#auth.AuthRequest">AuthRequest</a></td>
+                <td><a href="#auth.AuthResponse">AuthResponse</a></td>
+                <td><p>Login authenticates an existing user.
+
+Request body: AuthRequest
+Response: AuthResponse
+
+Common error codes:
+- INVALID_ARGUMENT: If email format is invalid
+- NOT_FOUND: If the email is not registered
+- UNAUTHENTICATED: If the password is incorrect
+- INTERNAL: For server-side errors
+
+Example curl:
+curl -X POST http://localhost:50051/auth/login \
+  -H &#39;Content-Type: application/json&#39; \
+  -d &#39;{&#34;email&#34;:&#34;john.doe@company.com&#34;,&#34;password&#34;:&#34;MySecurePass123!&#34;}&#39;</p></td>
+              </tr>
+            
+              <tr>
+                <td>VerifyToken</td>
+                <td><a href="#auth.VerifyTokenRequest">VerifyTokenRequest</a></td>
+                <td><a href="#auth.VerifyTokenResponse">VerifyTokenResponse</a></td>
+                <td><p>VerifyToken validates a JWT token and returns associated user information.
+
+Request body: VerifyTokenRequest
+Response: VerifyTokenResponse
+
+Common error codes:
+- INVALID_ARGUMENT: If token format is invalid
+- UNAUTHENTICATED: If token is expired or invalid
+- INTERNAL: For server-side errors
+
+Example curl:
+curl -X POST http://localhost:50051/auth/verify \
+  -H &#39;Content-Type: application/json&#39; \
+  -d &#39;{&#34;token&#34;:&#34;eyJhbGciOiJIUzI1NiIs...&#34;}&#39;</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+    
+      
+      <div class="file-heading">
+        <h2 id="api/proto/graph/graph.proto">api/proto/graph/graph.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="graph.ConnectionTypeRequest">ConnectionTypeRequest</h3>
+        <p>ConnectionTypeRequest represents a request to create a connection type.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Unique identifier for the connection type
+Format: UUID v4
+Optional for create operations (server will generate)
+Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Name of the connection type
+Maximum length: 255 characters
+Required field
+Should be descriptive of the relationship
+Example: &#34;worksAt&#34; or &#34;reportedTo&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>definition</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Detailed description of what this connection represents
+Maximum length: 4096 characters
+Required field
+Should clearly explain the meaning of the connection
+Example: &#34;Represents a current employment relationship between a person and a company&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.ConnectionTypesList">ConnectionTypesList</h3>
+        <p>ConnectionTypesList represents a collection of connection types matching a search query.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>connection_types</td>
+                  <td><a href="#graph.UsersConnectionType">UsersConnectionType</a></td>
+                  <td>repeated</td>
+                  <td><p>List of connection types matching the search criteria
+May be empty if no matches are found </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.Empty">Empty</h3>
+        <p>Empty message for requests/responses that don't need any data</p>
+
+        
+
+        
+      
+        <h3 id="graph.EntitiesList">EntitiesList</h3>
+        <p>EntitiesList represents a collection of entities matching a search query.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>entities</td>
+                  <td><a href="#graph.UsersEntity">UsersEntity</a></td>
+                  <td>repeated</td>
+                  <td><p>List of entities matching the search criteria
+May be empty if no matches are found </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.EntityRequest">EntityRequest</h3>
+        <p>EntityRequest represents a request to create or update an entity.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Unique identifier for the entity
+Format: UUID v4
+Optional for create operations (server will generate)
+Required for update operations
+Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Name of the entity
+Maximum length: 255 characters
+Required field
+Used for searching and display
+Example: &#34;John Doe&#34; or &#34;Company XYZ&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>definition</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Detailed description of the entity
+Maximum length: 4096 characters
+Required field
+Should provide clear, comprehensive information about the entity
+Example: &#34;Senior Software Engineer with 10 years of experience...&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.PropertyTypeRequest">PropertyTypeRequest</h3>
+        <p>PropertyTypeRequest represents a request to create a property type.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Unique identifier for the property type
+Format: UUID v4
+Optional for create operations (server will generate)
+Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Name of the property type
+Maximum length: 255 characters
+Required field
+Example: &#34;salary&#34; or &#34;startDate&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>definition</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Detailed description of what this property represents
+Maximum length: 4096 characters
+Required field
+Example: &#34;Annual gross salary in USD&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value_type</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Data type for this property
+Required field
+Must be one of: &#34;string&#34;, &#34;int&#34;, &#34;float&#34;, &#34;boolean&#34;
+Example: &#34;float&#34; for salary </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.PropertyTypesList">PropertyTypesList</h3>
+        <p>PropertyTypesList represents a collection of property types matching a search query.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>property_types</td>
+                  <td><a href="#graph.UsersPropertyType">UsersPropertyType</a></td>
+                  <td>repeated</td>
+                  <td><p>List of property types matching the search criteria
+May be empty if no matches are found </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.SearchRequest">SearchRequest</h3>
+        <p>SearchRequest represents a search query for finding entities, connection types, or property types.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Name to search for (case-sensitive exact match)
+Maximum length: 255 characters
+Required field
+Example: &#34;Person&#34; or &#34;worksAt&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.UserData">UserData</h3>
+        <p>UserData represents all graph data associated with a user.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>entities</td>
+                  <td><a href="#graph.UsersEntity">UsersEntity</a></td>
+                  <td>repeated</td>
+                  <td><p>List of all entities created or linked by the user
+May be empty for new users </p></td>
+                </tr>
+              
+                <tr>
+                  <td>connection_types</td>
+                  <td><a href="#graph.UsersConnectionType">UsersConnectionType</a></td>
+                  <td>repeated</td>
+                  <td><p>List of all connection types created or linked by the user
+May be empty for new users </p></td>
+                </tr>
+              
+                <tr>
+                  <td>property_types</td>
+                  <td><a href="#graph.UsersPropertyType">UsersPropertyType</a></td>
+                  <td>repeated</td>
+                  <td><p>List of all property types created or linked by the user
+May be empty for new users </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.UserRequest">UserRequest</h3>
+        <p>UserRequest represents a request to create a new user in the graph service.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Unique identifier for the user
+Format: UUID v4
+Required field
+Example: &#34;123e4567-e89b-12d3-a456-426614174000&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.UsersConnectionType">UsersConnectionType</h3>
+        <p>UsersConnectionType represents a user's version of a connection type.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Name given to the connection type by this user
+Maximum length: 255 characters </p></td>
+                </tr>
+              
+                <tr>
+                  <td>definition</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>User&#39;s definition of the connection type
+Maximum length: 4096 characters </p></td>
+                </tr>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ID of the user who created/owns this version
+Format: UUID v4 </p></td>
+                </tr>
+              
+                <tr>
+                  <td>connection_type_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ID of the underlying shared connection type
+Format: UUID v4 </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.UsersEntity">UsersEntity</h3>
+        <p>UsersEntity represents a user's version of an entity.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Name given to the entity by this user
+Maximum length: 255 characters
+Example: &#34;John Doe&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>definition</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>User&#39;s definition of the entity
+Maximum length: 4096 characters
+Example: &#34;Senior Software Engineer in our team...&#34; </p></td>
+                </tr>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ID of the user who created/owns this version
+Format: UUID v4 </p></td>
+                </tr>
+              
+                <tr>
+                  <td>entity_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ID of the underlying shared entity
+Format: UUID v4 </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="graph.UsersPropertyType">UsersPropertyType</h3>
+        <p>UsersPropertyType represents a user's version of a property type.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Name given to the property type by this user
+Maximum length: 255 characters </p></td>
+                </tr>
+              
+                <tr>
+                  <td>definition</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>User&#39;s definition of the property type
+Maximum length: 4096 characters </p></td>
+                </tr>
+              
+                <tr>
+                  <td>property_type_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ID of the underlying shared property type
+Format: UUID v4 </p></td>
+                </tr>
+              
+                <tr>
+                  <td>user_id</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>ID of the user who created/owns this version
+Format: UUID v4 </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value_type</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>Data type for this property
+One of: &#34;string&#34;, &#34;int&#34;, &#34;float&#34;, &#34;boolean&#34; </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+        <h3 id="graph.GraphService">GraphService</h3>
+        <p>GraphService provides operations for managing graph-based knowledge representation.</p><p>All operations require authentication via JWT token in the "authorization" metadata.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Method Name</td><td>Request Type</td><td>Response Type</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>CreateUser</td>
+                <td><a href="#graph.UserRequest">UserRequest</a></td>
+                <td><a href="#graph.Empty">Empty</a></td>
+                <td><p>CreateUser initializes a new user in the graph service.
+This should only be called by the auth service when a new user registers.
+
+Request body: UserRequest
+Response: Empty
+
+Common error codes:
+- INVALID_ARGUMENT: If user_id format is invalid
+- ALREADY_EXISTS: If user already exists
+- INTERNAL: For server-side errors</p></td>
+              </tr>
+            
+              <tr>
+                <td>GetUserData</td>
+                <td><a href="#graph.Empty">Empty</a></td>
+                <td><a href="#graph.UserData">UserData</a></td>
+                <td><p>GetUserData retrieves all entities, connection types, and property types
+associated with the authenticated user.
+
+Request body: Empty
+Response: UserData
+
+Common error codes:
+- UNAUTHENTICATED: If authentication is missing or invalid
+- INTERNAL: For server-side errors</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateEntity</td>
+                <td><a href="#graph.EntityRequest">EntityRequest</a></td>
+                <td><a href="#graph.UsersEntity">UsersEntity</a></td>
+                <td><p>CreateEntity creates a new entity or links to an existing one.
+
+Request body: EntityRequest
+Response: UsersEntity
+
+Common error codes:
+- INVALID_ARGUMENT: If name or definition exceed length limits
+- UNAUTHENTICATED: If authentication is missing or invalid
+- INTERNAL: For server-side errors
+
+Example request:
+{
+  &#34;name&#34;: &#34;John Doe&#34;,
+  &#34;definition&#34;: &#34;Senior Software Engineer at Company XYZ&#34;
+}</p></td>
+              </tr>
+            
+              <tr>
+                <td>UpdateEntity</td>
+                <td><a href="#graph.EntityRequest">EntityRequest</a></td>
+                <td><a href="#graph.Empty">Empty</a></td>
+                <td><p>UpdateEntity modifies an existing entity.
+
+Request body: EntityRequest
+Response: Empty
+
+Common error codes:
+- INVALID_ARGUMENT: If name or definition exceed length limits
+- NOT_FOUND: If entity doesn&#39;t exist
+- PERMISSION_DENIED: If user doesn&#39;t own the entity
+- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+              </tr>
+            
+              <tr>
+                <td>FindEntities</td>
+                <td><a href="#graph.SearchRequest">SearchRequest</a></td>
+                <td><a href="#graph.EntitiesList">EntitiesList</a></td>
+                <td><p>FindEntities searches for entities by exact name match.
+
+Request body: SearchRequest
+Response: EntitiesList
+
+Common error codes:
+- INVALID_ARGUMENT: If name is empty or too long
+- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreateConnectionType</td>
+                <td><a href="#graph.ConnectionTypeRequest">ConnectionTypeRequest</a></td>
+                <td><a href="#graph.UsersConnectionType">UsersConnectionType</a></td>
+                <td><p>CreateConnectionType creates a new connection type or links to an existing one.
+
+Request body: ConnectionTypeRequest
+Response: UsersConnectionType
+
+Common error codes:
+- INVALID_ARGUMENT: If name or definition exceed length limits
+- UNAUTHENTICATED: If authentication is missing or invalid
+
+Example request:
+{
+  &#34;name&#34;: &#34;worksAt&#34;,
+  &#34;definition&#34;: &#34;Indicates current employment relationship&#34;
+}</p></td>
+              </tr>
+            
+              <tr>
+                <td>FindConnectionTypes</td>
+                <td><a href="#graph.SearchRequest">SearchRequest</a></td>
+                <td><a href="#graph.ConnectionTypesList">ConnectionTypesList</a></td>
+                <td><p>FindConnectionTypes searches for connection types by exact name match.
+
+Request body: SearchRequest
+Response: ConnectionTypesList
+
+Common error codes:
+- INVALID_ARGUMENT: If name is empty or too long
+- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+              </tr>
+            
+              <tr>
+                <td>CreatePropertyType</td>
+                <td><a href="#graph.PropertyTypeRequest">PropertyTypeRequest</a></td>
+                <td><a href="#graph.UsersPropertyType">UsersPropertyType</a></td>
+                <td><p>CreatePropertyType creates a new property type or links to an existing one.
+
+Request body: PropertyTypeRequest
+Response: UsersPropertyType
+
+Common error codes:
+- INVALID_ARGUMENT: If name/definition too long or invalid value_type
+- UNAUTHENTICATED: If authentication is missing or invalid
+
+Example request:
+{
+  &#34;name&#34;: &#34;salary&#34;,
+  &#34;definition&#34;: &#34;Annual gross salary in USD&#34;,
+  &#34;value_type&#34;: &#34;float&#34;
+}</p></td>
+              </tr>
+            
+              <tr>
+                <td>FindPropertyTypes</td>
+                <td><a href="#graph.SearchRequest">SearchRequest</a></td>
+                <td><a href="#graph.PropertyTypesList">PropertyTypesList</a></td>
+                <td><p>FindPropertyTypes searches for property types by exact name match.
+
+Request body: SearchRequest
+Response: PropertyTypesList
+
+Common error codes:
+- INVALID_ARGUMENT: If name is empty or too long
+- UNAUTHENTICATED: If authentication is missing or invalid</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+
+        
+    
+
+    <h2 id="scalar-value-types">Scalar Value Types</h2>
+    <table class="scalar-value-types-table">
+      <thead>
+        <tr><td>.proto Type</td><td>Notes</td><td>C++</td><td>Java</td><td>Python</td><td>Go</td><td>C#</td><td>PHP</td><td>Ruby</td></tr>
+      </thead>
+      <tbody>
+        
+          <tr id="double">
+            <td>double</td>
+            <td></td>
+            <td>double</td>
+            <td>double</td>
+            <td>float</td>
+            <td>float64</td>
+            <td>double</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="float">
+            <td>float</td>
+            <td></td>
+            <td>float</td>
+            <td>float</td>
+            <td>float</td>
+            <td>float32</td>
+            <td>float</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="int32">
+            <td>int32</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="int64">
+            <td>int64</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="uint32">
+            <td>uint32</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int/long</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="uint64">
+            <td>uint64</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint32">
+            <td>sint32</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint64">
+            <td>sint64</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="fixed32">
+            <td>fixed32</td>
+            <td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="fixed64">
+            <td>fixed64</td>
+            <td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="sfixed32">
+            <td>sfixed32</td>
+            <td>Always four bytes.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sfixed64">
+            <td>sfixed64</td>
+            <td>Always eight bytes.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="bool">
+            <td>bool</td>
+            <td></td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>boolean</td>
+            <td>bool</td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>TrueClass/FalseClass</td>
+          </tr>
+        
+          <tr id="string">
+            <td>string</td>
+            <td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+            <td>string</td>
+            <td>String</td>
+            <td>str/unicode</td>
+            <td>string</td>
+            <td>string</td>
+            <td>string</td>
+            <td>String (UTF-8)</td>
+          </tr>
+        
+          <tr id="bytes">
+            <td>bytes</td>
+            <td>May contain any arbitrary sequence of bytes.</td>
+            <td>string</td>
+            <td>ByteString</td>
+            <td>str</td>
+            <td>[]byte</td>
+            <td>ByteString</td>
+            <td>string</td>
+            <td>String (ASCII-8BIT)</td>
+          </tr>
+        
+      </tbody>
+    </table>
+  </body>
+</html>
+
