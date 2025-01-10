@@ -5,8 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	c "github.com/BwezB/Wikno-backend/pkg/context"
+	
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 )
 
@@ -91,7 +90,7 @@ func (hs *HealthService) IllStatuses() []HealthStatus {
 // It updates healthy and illStatuses
 func (hs *HealthService) checkHealth() {
 	// Context so we can cancel the health check if it takes too long
-	ctx, cancel := c.WithTimeout(c.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	hs.checksMu.RLock()
@@ -112,10 +111,10 @@ func (hs *HealthService) checkHealth() {
 			hs.statusesMu.Lock()
 			hs.illStatuses = append(hs.illStatuses, *status)
 			hs.statusesMu.Unlock()
-			l.Warn("Health check failed", l.ErrField(status.Err))
+			l.Error("Health check failed", l.ErrField(status.Err))
 		}
 	}
 	
-	l.Debug("Health check complete", l.Bool("healthy", allHealthy))
+	// l.Debug("Health check complete", l.Bool("healthy", allHealthy))
 	hs.healthy.Store(allHealthy)
 }
