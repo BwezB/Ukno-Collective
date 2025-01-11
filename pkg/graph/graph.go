@@ -12,12 +12,10 @@ import (
 	pb "github.com/BwezB/Wikno-backend/api/proto/graph"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 type GraphService struct {
 	graphClient pb.GraphServiceClient
-	graphHealthClient grpc_health_v1.HealthClient
 }
 
 func NewGraphService(config GraphConfig) (*GraphService, error) {
@@ -33,7 +31,6 @@ func NewGraphService(config GraphConfig) (*GraphService, error) {
 
 	return &GraphService{
 		graphClient: pb.NewGraphServiceClient(conn),
-		graphHealthClient: grpc_health_v1.NewHealthClient(conn),
 	}, nil
 }
 
@@ -57,16 +54,16 @@ func (gs *GraphService) CreateUser(id, token string) error {
 // HealthCheck
 
 func (gs *GraphService) HealthCheck(ctx context.Context) *h.HealthStatus {
-	healthResponse, err := gs.graphHealthClient.Check(ctx, &grpc_health_v1.HealthCheckRequest{})
-	if err != nil || healthResponse.Status != grpc_health_v1.HealthCheckResponse_SERVING {
+	_, err := gs.graphClient.Ping(ctx, &pb.PingRequest{})
+	if err != nil {
 		return &h.HealthStatus{
 			Healthy: false,
-			Err:     e.New("auth service health check failed", e.ErrHealthCheckFailed, err),
-			Time:    time.Now(),
+			Err: err,
+			Time: time.Now(),
 		}
 	}
 	return &h.HealthStatus{
 		Healthy: true,
-		Time:    time.Now(),
+		Time: time.Now(),
 	}
 }

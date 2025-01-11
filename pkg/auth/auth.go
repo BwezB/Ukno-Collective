@@ -2,20 +2,21 @@ package auth
 
 import (
 	"context"
+	"strings"
 	"time"
-	
-	l "github.com/BwezB/Wikno-backend/pkg/log"
-	r "github.com/BwezB/Wikno-backend/pkg/requestid"
+
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
 	h "github.com/BwezB/Wikno-backend/pkg/health"
+	l "github.com/BwezB/Wikno-backend/pkg/log"
+	r "github.com/BwezB/Wikno-backend/pkg/requestid"
 
 	pb "github.com/BwezB/Wikno-backend/api/proto/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 // CONTEXT KEYS
@@ -109,26 +110,33 @@ func NewAuthService(config AuthConfig) (*AuthService, error) {
 // Health checks
 
 func (s *AuthService) HealthCheck(ctx context.Context) *h.HealthStatus {
-	healthResponse, err := s.authHealthClient.Check(ctx, &grpc_health_v1.HealthCheckRequest{})
-	if err != nil || healthResponse.Status != grpc_health_v1.HealthCheckResponse_SERVING {
+	_, err := s.authClient.Ping(ctx, &pb.PingRequest{})
+	if err != nil {
 		return &h.HealthStatus{
 			Healthy: false,
-			Err:     e.New("auth service health check failed", e.ErrHealthCheckFailed, err),
-			Time:    time.Now(),
+			Err: err,
+			Time: time.Now(),
 		}
 	}
 	return &h.HealthStatus{
 		Healthy: true,
-		Time:    time.Now(),
+		Time: time.Now(),
 	}
 }
 
 // UnaryAuthInterceptor returns a new unary interceptor that performs token validation
-func UnaryAuthInterceptor(authService *AuthService) grpc.UnaryServerInterceptor {
+func UnaryAuthInterceptor(authService *AuthService, allowedMethods []string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		if info.FullMethod == "/grpc.health.v1.Health/Check" {
+		if info.FullMethod == "/grpc.health.v1.Health/Check" { // Skip health checks
             return handler(ctx, req)
         }
+
+		// Check if method is allowed
+		for _, method := range allowedMethods {
+			if method == getMethodName(info.FullMethod) {
+				return handler(ctx, req)
+			}
+		}
 
 		// Extract token from metadata
 		md, ok := metadata.FromIncomingContext(ctx)
@@ -161,6 +169,13 @@ func UnaryAuthInterceptor(authService *AuthService) grpc.UnaryServerInterceptor 
 		// Call the handler
 		return handler(ctx, req)
 	}
+}
+
+// Helpers
+
+func getMethodName(method string) string {
+	parts := strings.Split(method, "/")
+	return parts[len(parts)-1]
 }
 
 
