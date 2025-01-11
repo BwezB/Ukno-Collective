@@ -1,36 +1,62 @@
 name: Build and Push Docker images
 
+# Trigger workflow when pushing to main branch/PR
 on:
   push:
-    branches: [ "main" ]  # or your default branch
+    branches: [ "main" ]  
   pull_request:
     branches: [ "main" ]
 
+# Jobs to run (in order in this case)
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
+      # Set up go so we can test
+      - name: Set up go
+        uses: actions/setup-go@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          go-version: '1.23'
 
-      - name: Build and push auth service
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: Dockerfile.auth
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+      # Start up services
+      - name: Start up services
+        run: docker-compose up -d
+             sleep 10
 
-      - name: Build and push graph service
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: Dockerfile.graph
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/graph-service:latest
+      # Run tests
+      - name: Run tests
+        run: go test ./tests -v
+
+      # After tests, clean up services
+      - name: Clean up services
+        if: always()  # Run even if tests fail
+        run: docker-compose down
+      
+      # # Login to Docker Hub
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # # Build and push auth service to the docker hub
+      # - name: Build and push auth service
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     file: Dockerfile.auth
+      #     push: true
+      #     tags: ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+
+      # # Build and push graph service to the docker hub
+      # - name: Build and push graph service
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: .
+      #     file: Dockerfile.graph
+      #     push: true
+      #     tags: ${{ secrets.DOCKERHUB_USERNAME }}/graph-service:latest
