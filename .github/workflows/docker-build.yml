@@ -10,6 +10,7 @@ on:
 # Jobs to run (in order in this case)
 jobs:
   build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       # Checkout code
@@ -22,10 +23,10 @@ jobs:
         with:
           go-version: '1.23'
 
-      # Start up services
-      - name: Start up services
-        run: docker-compose up -d
-             sleep 10
+      # Build and start up services
+      - name: Build and start up services
+        run: docker-compose build && docker-compose up -d
+             sleep 10  # Wait for services to start up
 
       # Run tests
       - name: Run tests
