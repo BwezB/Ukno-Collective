@@ -1,30 +1,30 @@
-# Auth Service Configuration Example
+# Graph Service Configuration Example
 
 # Common configuration
-environment: "development"  # Controls environment-specific behaviors
-                            # Options: "development" | "production"
-                            # - development: Enables debugging features, detailed logging
-                            # - production: Optimizes for performance, minimal logging
-                            # Default: "production"
+environment: "development" # Controls environment-specific behaviors
+                           # Options: "development" | "production"
+                           # - development: Enables debugging features, detailed logging
+                           # - production: Optimizes for performance, minimal logging
+                           # Default: "production"
 
 # Server configuration
 server:
   # Main gRPC server settings
   host: "localhost"    # The IP address or hostname the server will listen on
                        # Default: "localhost"
-  port: 50051          # The port number for the gRPC server
+  port: 50052          # The port number for the gRPC server
                        # Valid range: 1-65535
-                       # Default: 50051
+                       # Default: 50052 (Note: Different from auth service default)
   
   # Prometheus metrics server settings
   metrics:
-    host: "localhost" # Host address for the metrics server
-                      # Default: "localhost"
-    port: 2112        # Port for exposing Prometheus metrics
-                      # Valid range: 1-65535
-                      # Default: 2112
-    path: "/metrics"  # HTTP endpoint path for metrics
-                      # Default: "/metrics"
+    host: "localhost"  # Host address for the metrics server
+                       # Default: "localhost"
+    port: 2112         # Port for exposing Prometheus metrics
+                       # Valid range: 1-65535
+                       # Default: 2112
+    path: "/metrics"   # HTTP endpoint path for metrics
+                       # Default: "/metrics"
 
 # Database configuration (PostgreSQL)
 database:
@@ -36,8 +36,8 @@ database:
                              # Default: "postgres"
   password: "your_password"  # Database password
                              # Default: "" (empty)
-  dbname: "auth_db"          # Name of the database to connect to
-                             # Default: "auth_db"
+  dbname: "graph_db"         # Name of the database to connect to
+                             # Default: "graph_db" (Note: Different from auth service default)
 
   # Connection pool settings
   max_open_conns: 10              # Maximum number of open connections to the database
@@ -76,27 +76,12 @@ logger:
 health:
   health_check_interval: "5s"   # Frequency of service health checks
                                 # Format: Go duration string (e.g., "5s", "1m")
-                                # Service checks: Database connectivity, JWT signing
+                                # Service checks: Database connectivity
                                 # Default: "5s"
 
-# Service configuration
-service:
-  jwt_secret: "your_secret_key"        # Secret key for signing JWT tokens
-                                       # Should be long and random in production
-                                       # Default: "" (empty)
-  jwt_expiry: "24h"                    # Lifetime of issued JWT tokens
-                                       # Format: Go duration string
-                                       # Default: "24h"
-  email: "authservice@wikno.com"       # Email identity for auth service
-                                       # Used for service-to-service communication
-                                       # Default: "authservice@wikno.com"
-  password: "service_password"         # Password for auth service
-                                       # Used for service-to-service auth
-                                       # Default: "" (empty)
-
-# Graph service connection
-graph:
-  host: "localhost"                    # Host address of the graph service
-                                       # Default: "localhost"
-  port: "50052"                        # Port of the graph service
-                                       # Default: "50052"
+# Auth service connection (for token verification)
+auth:
+  host: "localhost"           # Host address of the auth service
+                              # Default: "localhost"
+  port: 50051                 # Port of the auth service
+                              # Default: 50051
