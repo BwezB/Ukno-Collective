@@ -39,8 +39,8 @@ Variables for configuring the logging behavior:
 These variables are only used by the Auth service:
 - `JWT_SECRET`: Secret key for signing JWT tokens [REQUIRED] - This field does not have a default value
 - `JWT_EXPIRY`: JWT token expiration time (e.g., "24h", "168h")
-- `AUTH_SERVICE_EMAIL`: Email identity for auth service
-- `AUTH_SERVICE_PASSWORD`: Password for auth service [REQUIRED] - This field does not have a default value
+- `AUTH_EMAIL`: Email identity for auth service
+- `AUTH_PASSWORD`: Password for auth service [REQUIRED] - This field does not have a default value
 - `GRAPH_HOST`: Host address of the graph service
 - `GRAPH_PORT`: Port of the graph service
 
