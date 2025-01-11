@@ -20,7 +20,7 @@ Variables for PostgreSQL database connection:
 - `DB_HOST`: Database server hostname
 - `DB_PORT`: Database server port
 - `DB_USER`: Database username
-- `DB_PASSWORD`: Database password
+- `DB_PASSWORD`: Database password [REQUIRED] - This field does not have a default value
 - `DB_NAME`: Database name
 - `DB_MAX_OPEN_CONNS`: Maximum number of open database connections
 - `DB_MAX_IDLE_CONNS`: Maximum number of idle database connections
@@ -37,10 +37,10 @@ Variables for configuring the logging behavior:
 
 ### Auth Service Specific Variables
 These variables are only used by the Auth service:
-- `JWT_SECRET`: Secret key for signing JWT tokens
+- `JWT_SECRET`: Secret key for signing JWT tokens [REQUIRED] - This field does not have a default value
 - `JWT_EXPIRY`: JWT token expiration time (e.g., "24h", "168h")
 - `AUTH_SERVICE_EMAIL`: Email identity for auth service
-- `AUTH_SERVICE_PASSWORD`: Password for auth service
+- `AUTH_SERVICE_PASSWORD`: Password for auth service [REQUIRED] - This field does not have a default value
 - `GRAPH_HOST`: Host address of the graph service
 - `GRAPH_PORT`: Port of the graph service
 

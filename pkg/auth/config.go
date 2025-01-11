@@ -21,8 +21,8 @@ func (a *AuthConfig) AddFromEnv() {
 }
 
 var (
-	flagAuthHost = c.NewFlag("auth_host", "", "Auth Host")
-	flagAuthPort = c.NewFlag("auth_port", "", "Auth Port")
+	flagAuthHost = c.NewFlag("auth-host", "", "Auth Host")
+	flagAuthPort = c.NewFlag("auth-port", "", "Auth Port")
 )
 func (a *AuthConfig) AddFromFlags() {
 	c.SetFlagValue(&a.Host, flagAuthHost)

@@ -27,10 +27,10 @@ func (sc *ServiceConfig) AddFromEnv() {
 }
 
 var (
-	flagJWTSecret = c.NewFlag("jwt_secret", "", "Secret key for JWT")
-	flagJWTExpiry = c.NewFlag("jwt_expiry", "", "Expiry time for JWT")
-	flagEmail = c.NewFlag("email", "", "Email for the auth service")
-	flagPassword = c.NewFlag("password", "", "Password for the auth service")
+	flagJWTSecret = c.NewFlag("jwt-secret", "", "Secret key for JWT")
+	flagJWTExpiry = c.NewFlag("jwt-expiry", "", "Expiry time for JWT")
+	flagEmail = c.NewFlag("auth-service-email", "", "Email for the auth service")
+	flagPassword = c.NewFlag("auth-service-password", "", "Password for the auth service")
 )
 func (sc *ServiceConfig) AddFromFlags() {
 	c.SetFlagValue(&sc.jwtSecret, flagJWTSecret)

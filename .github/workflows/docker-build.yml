@@ -1,25 +1,81 @@
-name: Build and Push Docker images
+name: Test and Publish
 
 # Trigger workflow when pushing to main branch/PR
 on:
   push:
-    branches: [ "main" ]  
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
+  workflow_dispatch:
 
 # Jobs to run (in order in this case)
 jobs:
-  build:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  test:
+    name: Run Integration Tests
     runs-on: ubuntu-latest
-    steps:
-      # Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      # Set up go so we can test
-      - name: Set up go
+    services:
+      auth-db:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: auth_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      graph-db:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: graph_db
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
         uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: Build services
+        run: |
+          go build -o auth-service ./cmd/authservice
+          go build -o graph-service ./cmd/graphservice
+
+      - name: Start services
+        run: |
+          ./auth-service --db-password=password --auth-service-password=password &
+          ./graph-service --db-password=password &
+          sleep 10 # Wait for services to start
+
+      - name: Run integration tests
+        run: go test -v ./tests/...
+
+  publish:
+    name: Publish Docker Images
+    needs: test # Only run if tests pass
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Only publish on main branch pushes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
         with:
           go-version: '1.23'
 
@@ -44,20 +100,18 @@ jobs:
       #     username: ${{ secrets.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # # Build and push auth service to the docker hub
-      # - name: Build and push auth service
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     file: Dockerfile.auth
-      #     push: true
-      #     tags: ${{ secrets.DOCKERHUB_USERNAME }}/auth-service:latest
+      - name: Build and push Auth Service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.auth
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wikno-auth:latest
 
-      # # Build and push graph service to the docker hub
-      # - name: Build and push graph service
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     file: Dockerfile.graph
-      #     push: true
-      #     tags: ${{ secrets.DOCKERHUB_USERNAME }}/graph-service:latest
+      - name: Build and push Graph Service
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.graph
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/wikno-graph:latest

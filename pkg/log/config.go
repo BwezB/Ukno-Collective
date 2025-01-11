@@ -33,11 +33,11 @@ func (l *LoggerConfig) AddFromEnv() {
 
 var (
 	// flagLoggerEnvironment is the flag for the logger environment.
-	flagLoggerEnvironment = c.NewFlag("logger_environment", "", "Logger Environment")
+	flagLoggerEnvironment = c.NewFlag("logger-environment", "", "Logger Environment")
 	// flagLogLevel is the flag for the log level.
-	flagLogLevel = c.NewFlag("log_level", "", "Log Level")
+	flagLogLevel = c.NewFlag("log-level", "", "Log Level")
 	// flagLogEncoding is the flag for the log encoding.
-	flagLogEncoding = c.NewFlag("log_encoding", "", "Log Encoding")
+	flagLogEncoding = c.NewFlag("log-encoding", "", "Log Encoding")
 )
 func (l *LoggerConfig) AddFromFlags() {
 	c.SetFlagValue(&l.LoggerEnvironment, flagLoggerEnvironment)
