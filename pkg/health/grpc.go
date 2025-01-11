@@ -1,12 +1,13 @@
 package health
 
 import (
-    "context"
+	"context"
+	"time"
 
-    "google.golang.org/grpc/codes"
-    "google.golang.org/grpc/health/grpc_health_v1"
-    "google.golang.org/grpc/status"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/status"
 )
 
 type GRPCHealthServer struct {
@@ -44,6 +45,8 @@ func (hs *GRPCHealthServer) Watch(req *grpc_health_v1.HealthCheckRequest, srv gr
 func (hs *GRPCHealthServer) Serve() {
 	// Start the health checking service in a new goroutine
 	go func () {
+		// Wait 2 sec for other services to start
+		time.Sleep(2 * time.Second)
 		hs.healthService.Start()
 	}()
 }

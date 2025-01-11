@@ -20,8 +20,8 @@ func (gc *GraphConfig) AddFromEnv() {
 }
 
 var (
-	flagGraphHost = c.NewFlag("graph_host", "", "Graph Host")
-	flagGraphPort = c.NewFlag("graph_port", "", "Graph Port")
+	flagGraphHost = c.NewFlag("graph-host", "", "Graph Host")
+	flagGraphPort = c.NewFlag("graph-port", "", "Graph Port")
 )
 func (gc *GraphConfig) AddFromFlags() {
 	c.SetFlagValue(&gc.Host, flagGraphHost)

@@ -36,7 +36,7 @@ func NewHealthService(config HealthServiceConfig) *HealthService {
 		ticker:   time.NewTicker(config.HealthCheckInterval),
 		stopChan: make(chan struct{}),
 	}
-	hs.healthy.Store(true)
+	hs.healthy.Store(false)
 
 	return hs
 }

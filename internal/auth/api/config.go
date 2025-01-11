@@ -34,8 +34,8 @@ func (s *ServerConfig) AddFromEnv() {
 // FLAGS
 
 var (
-	flagServerHost = c.NewFlag("server_host", "", "Server Host")
-	flagServerPort = c.NewFlag("server_port", "", "Server Port")
+	flagServerHost = c.NewFlag("server-host", "", "Server Host")
+	flagServerPort = c.NewFlag("server-port", "", "Server Port")
 )
 func (s *ServerConfig) AddFromFlags() {
 	c.SetFlagValue(&s.Host, flagServerHost)

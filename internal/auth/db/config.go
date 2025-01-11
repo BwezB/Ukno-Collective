@@ -67,17 +67,17 @@ func (d *DatabaseConfig) AddFromEnv() {
 // FLAGS
 
 var (
-	flagDatabaseHost     = c.NewFlag("database_host", "", "Database Host")
-	flagDatabasePort     = c.NewFlag("database_port", "", "Database Port")
-	flagDatabaseUser     = c.NewFlag("database_user", "", "Database User")
-	flagDatabasePassword = c.NewFlag("database_password", "", "Database Password")
-	flagDatabaseName     = c.NewFlag("database_name", "", "Database Name")
+	flagDatabaseHost     = c.NewFlag("db-host", "", "Database Host")
+	flagDatabasePort     = c.NewFlag("db-port", "", "Database Port")
+	flagDatabaseUser     = c.NewFlag("db-user", "", "Database User")
+	flagDatabasePassword = c.NewFlag("db-password", "", "Database Password")
+	flagDatabaseName     = c.NewFlag("db-name", "", "Database Name")
 
-	flagDatabaseMaxOpenConns     = c.NewFlag("database_max_open_conns", "", "Database Max Open Connections")
-	flagDatabaseMaxIdleConns     = c.NewFlag("database_max_idle_conns", "", "Database Max Idle Connections")
-	flagDatabaseConnMaxLifetime  = c.NewFlag("database_conn_max_lifetime", "", "Database Connection Max Lifetime")
+	flagDatabaseMaxOpenConns     = c.NewFlag("db-max-open-conns", "", "Database Max Open Connections")
+	flagDatabaseMaxIdleConns     = c.NewFlag("db-max-idle-conns", "", "Database Max Idle Connections")
+	flagDatabaseConnMaxLifetime  = c.NewFlag("db-conn-max-lifetime", "", "Database Connection Max Lifetime")
 
-	flagDatabaseDropTables = c.NewFlag("database_drop_tables", "", "DROPS ALL TABLES! DO NOT USE IN PRODUCTION")
+	flagDatabaseDropTables = c.NewFlag("db-drop-tables", "", "DROPS ALL TABLES! DO NOT USE IN PRODUCTION")
 )
 
 func (d *DatabaseConfig) AddFromFlags() {
