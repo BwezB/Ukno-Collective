@@ -1,0 +1,20 @@
+# Base image
+FROM golang:1.23
+
+# Working dir in container
+WORKDIR /app
+
+# Build up layers:
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy my source code
+COPY . .
+
+# Build the application
+RUN go build -o graph-service ./cmd/graphservice
+
+EXPOSE 50052
+
+# Command to run when container starts
+CMD ["./graph-service"]

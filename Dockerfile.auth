@@ -1,0 +1,26 @@
+# Base image
+FROM golang:1.23
+
+# Working dir in container
+WORKDIR /app
+
+# Build up layers:
+
+# Copy go.mod and go.sum first to leverage Docker cache
+# This layer will only rebuild if these files change
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of your source code
+# This layer rebuilds if any source file changes
+COPY . .
+
+# Build the application
+# The binary will be created at /app/auth-service
+RUN go build -o auth-service ./cmd/authservice
+
+# Expose the port your service listens on
+EXPOSE 50051
+
+# Command to run when container starts
+CMD ["./auth-service"]

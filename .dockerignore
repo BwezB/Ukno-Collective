@@ -1,0 +1,26 @@
+# Git files and vscode
+.git
+.gitignore
+.vscode/*
+
+# Documentation
+*.md
+doc/
+
+# Development configs
+.env
+docker-compose.yml
+Dockerfile*
+
+# Build files
+bin/
+tmp/
+
+# Development configs
+cmd/authservice/config.yaml
+cmd/authservice/config.example.yaml
+cmd/graphservice/config.yaml
+cmd/graphservice/config.example.yaml
+
+# Testclient
+cmd/testclient/*
