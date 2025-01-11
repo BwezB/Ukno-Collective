@@ -8,7 +8,7 @@ import (
 
 type ServerConfig struct {
 	Metrics m.MetricsServerConfig `yaml:"metrics"`
-	Host string `yaml:"host" validate:"required,hostname"`
+	Host string `yaml:"host" validate:"required,hostname|ip"`
 	Port int `yaml:"port" validate:"required,min=1,max=65535"`
 }
 

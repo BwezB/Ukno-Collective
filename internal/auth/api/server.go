@@ -199,6 +199,8 @@ func (s *Server) Login(ctx context.Context, req *pb.AuthRequest) (*pb.AuthRespon
 	return &res, nil
 }
 
+// Tokens
+
 func (s *Server) VerifyToken(ctx context.Context, req *pb.VerifyTokenRequest) (*pb.VerifyTokenResponse, error) {
 	// Translate the request
 	request := model.VerifyTokenRequest{
@@ -234,4 +236,13 @@ func (s *Server) VerifyToken(ctx context.Context, req *pb.VerifyTokenRequest) (*
 		l.String("request_id", r.GetRequestID(ctx)))
 
 	return &res, nil
+}
+
+// Ping
+
+func (s *Server) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
+	// l.Debug("Ping request received", l.String("request_id", r.GetRequestID(ctx)))
+	return &pb.PingResponse{
+		ServiceName: "auth",
+	}, nil
 }

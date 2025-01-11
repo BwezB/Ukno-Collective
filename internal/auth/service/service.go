@@ -30,12 +30,22 @@ func NewAuthService(database *db.Database, graph *g.GraphService, config Service
 	}
 
 	// Create the user in the DB if it does not exist
-	user, err := database.CreateUser(r.WithRequestID(context.Background(), "0"), &model.AuthRequest{
+	var user *model.User
+	user, err = database.CreateUser(r.WithRequestID(context.Background(), "0"), &model.AuthRequest{
 		Email:    config.email,
 		Password: config.password,
 	}, hashedPassword)
-	if err != nil && !e.Is(err, db.ErrDuplicateEntry) {
-		return nil, e.Wrap("RegisterUser failed", err)
+	if err != nil {
+		if e.Is(err, db.ErrDuplicateEntry) {
+			// User already exists, get the user
+			user, err = database.GetUserByEmail(r.WithRequestID(context.Background(), "0"), config.email)
+			if err != nil {
+				return nil, e.Wrap("RegisterUser failed", err)
+			}
+		} else {
+			// All other errors
+			return nil, e.Wrap("RegisterUser failed", err)
+		}
 	}
 
 	// JWT will be created with the first request

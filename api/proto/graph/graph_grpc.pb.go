@@ -30,6 +30,7 @@ const (
 	GraphService_FindConnectionTypes_FullMethodName  = "/graph.GraphService/FindConnectionTypes"
 	GraphService_CreatePropertyType_FullMethodName   = "/graph.GraphService/CreatePropertyType"
 	GraphService_FindPropertyTypes_FullMethodName    = "/graph.GraphService/FindPropertyTypes"
+	GraphService_Ping_FullMethodName                 = "/graph.GraphService/Ping"
 )
 
 // GraphServiceClient is the client API for GraphService service.
@@ -97,6 +98,8 @@ type GraphServiceClient interface {
 	// (UNAUTHENTICATED): If authentication is missing or invalid
 	// (INTERNAL): For server-side errors
 	FindPropertyTypes(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*PropertyTypesList, error)
+	// Ping checks if the service is running.
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
 type graphServiceClient struct {
@@ -197,6 +200,16 @@ func (c *graphServiceClient) FindPropertyTypes(ctx context.Context, in *SearchRe
 	return out, nil
 }
 
+func (c *graphServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, GraphService_Ping_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GraphServiceServer is the server API for GraphService service.
 // All implementations must embed UnimplementedGraphServiceServer
 // for forward compatibility.
@@ -262,6 +275,8 @@ type GraphServiceServer interface {
 	// (UNAUTHENTICATED): If authentication is missing or invalid
 	// (INTERNAL): For server-side errors
 	FindPropertyTypes(context.Context, *SearchRequest) (*PropertyTypesList, error)
+	// Ping checks if the service is running.
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
 	mustEmbedUnimplementedGraphServiceServer()
 }
 
@@ -298,6 +313,9 @@ func (UnimplementedGraphServiceServer) CreatePropertyType(context.Context, *Prop
 }
 func (UnimplementedGraphServiceServer) FindPropertyTypes(context.Context, *SearchRequest) (*PropertyTypesList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindPropertyTypes not implemented")
+}
+func (UnimplementedGraphServiceServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedGraphServiceServer) mustEmbedUnimplementedGraphServiceServer() {}
 func (UnimplementedGraphServiceServer) testEmbeddedByValue()                      {}
@@ -482,6 +500,24 @@ func _GraphService_FindPropertyTypes_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GraphService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphServiceServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GraphService_Ping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphServiceServer).Ping(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GraphService_ServiceDesc is the grpc.ServiceDesc for GraphService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -524,6 +560,10 @@ var GraphService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindPropertyTypes",
 			Handler:    _GraphService_FindPropertyTypes_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _GraphService_Ping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -186,6 +186,16 @@ message UsersPropertyType {
 // Empty message for requests/responses that don't need any data
 message Empty {}
 
+// PingRequest represents a ping request.
+message PingRequest {}
+
+// PingResponse responds to a ping.
+message PingResponse {
+    // service_name is the name of the responding service.
+    // Example: "auth"
+    string service_name = 1;
+}
+
 // GraphService provides operations for managing graph-based knowledge representation.
 // All operations require authentication via JWT token in the "authorization" metadata.
 service GraphService {
@@ -255,4 +265,7 @@ service GraphService {
     // (UNAUTHENTICATED): If authentication is missing or invalid
     // (INTERNAL): For server-side errors
     rpc FindPropertyTypes(SearchRequest) returns (PropertyTypesList) {}
+
+    // Ping checks if the service is running.
+    rpc Ping(PingRequest) returns (PingResponse);
 }

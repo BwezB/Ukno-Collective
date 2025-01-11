@@ -60,6 +60,16 @@ message VerifyTokenResponse {
     string email = 2;
 }
 
+// PingRequest represents a ping request.
+message PingRequest {}
+
+// PingResponse responds to a ping.
+message PingResponse {
+    // service_name is the name of the responding service.
+    // Example: "auth"
+    string service_name = 1;
+}
+
 // AuthService provides authentication and authorization functionality.
 service AuthService {
     // Register creates a new user account.
@@ -83,4 +93,7 @@ service AuthService {
     // (UNAUTHENTICATED): If token is expired or invalid
     // (INTERNAL): For server-side errors
     rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+
+    // Ping checks if the service is running.
+    rpc Ping(PingRequest) returns (PingResponse);
 }

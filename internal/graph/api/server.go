@@ -55,7 +55,7 @@ func NewServer(service *service.GraphService,
 		grpc.ChainUnaryInterceptor(
 			r.UnaryRequestIDInterceptor,
 			m.MetricsInterceptor(metricsServer.MetricsService),
-			a.UnaryAuthInterceptor(authService),
+			a.UnaryAuthInterceptor(authService, []string{"Ping"}),
 		),
 	)
 	pb.RegisterGraphServiceServer(server.GrpcServer, server)
@@ -385,6 +385,15 @@ func (s *Server) FindPropertyTypes(ctx context.Context, req *pb.SearchRequest) (
 	}
 
 	return response, nil
+}
+
+// Ping
+
+func (s *Server) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
+	// l.Debug("Ping recieved", l.String("request_id", r.GetRequestID(ctx)))
+	return &pb.PingResponse{
+		ServiceName: "graph",
+	}, nil
 }
 
 // HELPER FUNCTIONS
