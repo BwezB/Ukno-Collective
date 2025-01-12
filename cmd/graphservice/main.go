@@ -70,7 +70,6 @@ func main() {
 	if err != nil {
 		l.Fatal("Could not create auth service:", l.ErrField(err))
 	}
-	healthService.AddCheck(authService) // Health check the auth service connection
 
 	// Create the API server
 	server, err := api.NewServer(service, healthService, metrics, authService, validator, config.Server)

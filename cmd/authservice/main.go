@@ -64,7 +64,6 @@ func main() {
 	if err != nil {
 		l.Fatal("Could not create graph service:", l.ErrField(err))
 	}
-	healthService.AddCheck(graphService) // Health check the graph service
 
 	// Create the service
 	authService, err := service.NewAuthService(database, graphService, config.Service)

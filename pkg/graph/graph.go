@@ -2,12 +2,10 @@ package graph
 
 import (
 	"context"
-	"time"
 
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 	a "github.com/BwezB/Wikno-backend/pkg/auth"
-	h "github.com/BwezB/Wikno-backend/pkg/health"
 
 	pb "github.com/BwezB/Wikno-backend/api/proto/graph"
 	"google.golang.org/grpc"
@@ -51,19 +49,19 @@ func (gs *GraphService) CreateUser(id, token string) error {
 	return nil
 }
 
-// HealthCheck
+// Health checks - NO!! Kubernetes doesnt open endpoints if service is not healthy
 
-func (gs *GraphService) HealthCheck(ctx context.Context) *h.HealthStatus {
-	_, err := gs.graphClient.Ping(ctx, &pb.PingRequest{})
-	if err != nil {
-		return &h.HealthStatus{
-			Healthy: false,
-			Err: err,
-			Time: time.Now(),
-		}
-	}
-	return &h.HealthStatus{
-		Healthy: true,
-		Time: time.Now(),
-	}
-}
+// func (gs *GraphService) HealthCheck(ctx context.Context) *h.HealthStatus {
+// 	_, err := gs.graphClient.Ping(ctx, &pb.PingRequest{})
+// 	if err != nil {
+// 		return &h.HealthStatus{
+// 			Healthy: false,
+// 			Err: err,
+// 			Time: time.Now(),
+// 		}
+// 	}
+// 	return &h.HealthStatus{
+// 		Healthy: true,
+// 		Time: time.Now(),
+// 	}
+// }

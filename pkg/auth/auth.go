@@ -3,10 +3,8 @@ package auth
 import (
 	"context"
 	"strings"
-	"time"
 
 	e "github.com/BwezB/Wikno-backend/pkg/errors"
-	h "github.com/BwezB/Wikno-backend/pkg/health"
 	l "github.com/BwezB/Wikno-backend/pkg/log"
 	r "github.com/BwezB/Wikno-backend/pkg/requestid"
 
@@ -107,22 +105,22 @@ func NewAuthService(config AuthConfig) (*AuthService, error) {
 	}, nil
 }
 
-// Health checks
+// Health checks - NO!! Kubernetes doesnt open endpoints if service is not healthy
 
-func (s *AuthService) HealthCheck(ctx context.Context) *h.HealthStatus {
-	_, err := s.authClient.Ping(ctx, &pb.PingRequest{})
-	if err != nil {
-		return &h.HealthStatus{
-			Healthy: false,
-			Err: err,
-			Time: time.Now(),
-		}
-	}
-	return &h.HealthStatus{
-		Healthy: true,
-		Time: time.Now(),
-	}
-}
+// func (s *AuthService) HealthCheck(ctx context.Context) *h.HealthStatus {
+// 	_, err := s.authClient.Ping(ctx, &pb.PingRequest{})
+// 	if err != nil {
+// 		return &h.HealthStatus{
+// 			Healthy: false,
+// 			Err: err,
+// 			Time: time.Now(),
+// 		}
+// 	}
+// 	return &h.HealthStatus{
+// 		Healthy: true,
+// 		Time: time.Now(),
+// 	}
+// }
 
 // UnaryAuthInterceptor returns a new unary interceptor that performs token validation
 func UnaryAuthInterceptor(authService *AuthService, allowedMethods []string) grpc.UnaryServerInterceptor {
