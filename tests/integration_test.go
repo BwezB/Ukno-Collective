@@ -16,6 +16,13 @@ import (
     graph "github.com/BwezB/Wikno-backend/api/proto/graph"
 )
 
+const (
+    auth_host = "192.168.49.2"
+    auth_port = "50051"
+    graph_host = "192.168.49.2"
+    graph_port = "50052"
+)
+
 type testClients struct {
     authClient  auth.AuthServiceClient
     graphClient graph.GraphServiceClient
@@ -24,16 +31,16 @@ type testClients struct {
 }
 
 func setupClients(t *testing.T) *testClients {
-    ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     
     // Connect to auth service
-    authConn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+    authConn, err := grpc.Dial(auth_host + ":" + auth_port, grpc.WithTransportCredentials(insecure.NewCredentials()))
     if err != nil {
         t.Fatalf("Could not connect to auth service: %v", err)
     }
     
     // Connect to graph service
-    graphConn, err := grpc.Dial("localhost:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+    graphConn, err := grpc.Dial(graph_host + ":" + graph_port, grpc.WithTransportCredentials(insecure.NewCredentials()))
     if err != nil {
         t.Fatalf("Could not connect to graph service: %v", err)
     }
