@@ -4,6 +4,16 @@ FROM golang:1.23
 # Working dir in container
 WORKDIR /app
 
+# Install grpc_health_probe with architecture detection
+RUN GRPC_HEALTH_PROBE_VERSION=v0.4.19 && \
+    case "$(uname -m)" in \
+        aarch64) ARCH="arm64" ;; \
+        x86_64) ARCH="amd64" ;; \
+        *) echo "Unsupported architecture"; exit 1 ;; \
+    esac && \
+    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-${ARCH} && \
+    chmod +x /bin/grpc_health_probe
+
 # Build up layers:
 COPY go.mod go.sum ./
 RUN go mod download
@@ -15,6 +25,10 @@ COPY . .
 RUN go build -o graph-service ./cmd/graphservice
 
 EXPOSE 50052
+
+# Add health check
+HEALTHCHECK --interval=5s --timeout=5s --start-period=5s --retries=3 \
+    CMD grpc_health_probe -addr=:50051 || exit 1
 
 # Command to run when container starts
 CMD ["./graph-service"]

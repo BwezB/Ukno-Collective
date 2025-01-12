@@ -1,47 +1,29 @@
 services:
-  # Auth service database
-  auth-db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password  # Don't use this in production!
-      POSTGRES_DB: auth_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - auth-db-data:/var/lib/postgresql/data
-
-  # Graph service database
-  graph-db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password  # Don't use this in production!
-      POSTGRES_DB: graph_db
-    ports:
-      - "5433:5432"  # Note: Different port on host to avoid conflict
-    volumes:
-      - graph-db-data:/var/lib/postgresql/data
-
   # Auth service
   auth-service:
     build:
       context: .  # Use root directory as build context
       dockerfile: Dockerfile.auth
     environment:
-      - DB_HOST=auth-db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=auth_db
-      - SERVER_HOST=0.0.0.0  # Listen on all interfaces
+      - DB_HOST=${DB_HOST:-host.docker.internal} # DNS that resolves to host machine
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres} # DO NOT USE IN PRODUCTION
+      - DB_NAME=${DB_NAME:-auth_db}
+      - SERVER_HOST=0.0.0.0  # All interfaces
       - SERVER_PORT=50051
       - GRAPH_HOST=graph-service
       - GRAPH_PORT=50052
     ports:
       - "50051:50051"
-    depends_on:
-      - auth-db
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50051"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Linux requires this for DNS resolution?
 
   # Graph service
   graph-service:
@@ -49,22 +31,22 @@ services:
       context: .
       dockerfile: Dockerfile.graph
     environment:
-      - DB_HOST=graph-db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=graph_db
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres} # DO NOT USE IN PRODUCTION
+      - DB_NAME=${DB_NAME:-graph_db}
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=50052
       - AUTH_HOST=auth-service
       - AUTH_PORT=50051
     ports:
       - "50052:50052"
-    depends_on:
-      - graph-db
-      - auth-service
-
-# Define named volumes for database persistence
-volumes:
-  auth-db-data:
-  graph-db-data:
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50052"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
