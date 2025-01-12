@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service  # Name of the deployment
+  labels:
+    app: auth-service
+spec:
+  replicas: 1  # Start with 1 replica, HPA will adjust this
+  selector:
+    matchLabels:
+      app: auth-service  # Select pods with this label
+  template:
+    metadata:
+      labels:
+        app: auth-service  # Label for the pods
+    spec:
+      containers:
+      - name: auth-service
+        image: bwez/wikno-auth:latest 
+        ports:
+        - containerPort: 50051  # Port the container listens on
+        envFrom:
+        - configMapRef:
+            name: auth-config  # Reference to ConfigMap
+        livenessProbe:  # Health check for pod lifecycle
+          grpc:
+            port: 50051
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:  # Health check for service readiness
+          grpc:
+            port: 50051
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        resources:  # Resource limits and requests
+          requests:
+            cpu: 100m    # 0.1 CPU core
+            memory: 128Mi
+          limits:
+            cpu: 500m    # 0.5 CPU core
+            memory: 256Mi

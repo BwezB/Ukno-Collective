@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: graph-config
+data:
+  DB_HOST: "host.minikube.internal"     # Special DNS name to reach host machine
+  DB_PORT: "5432"
+  DB_USER: "postgres"
+  DB_PASSWORD: "postgres"  # In production, use secrets!
+  DB_NAME: "graph_db"
+  SERVER_HOST: "0.0.0.0"
+  SERVER_PORT: "50052"
+  AUTH_HOST: "auth-service"  # Service name of auth service
+  AUTH_PORT: "50051"
