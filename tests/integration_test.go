@@ -17,9 +17,9 @@ import (
 )
 
 const (
-    auth_host = "192.168.49.2"
+    auth_host = "localhost"
     auth_port = "50051"
-    graph_host = "192.168.49.2"
+    graph_host = "localhost"
     graph_port = "50052"
 )
 
